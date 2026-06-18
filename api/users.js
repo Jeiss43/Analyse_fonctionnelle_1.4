@@ -14,6 +14,7 @@ module.exports = async function handler(req, res) {
 
   // GET: Récupère la liste des étudiants classés
   if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
       const { data, error } = await supabase
         .from('users')

@@ -1045,29 +1045,38 @@ window.addEventListener("DOMContentLoaded", async function() {
         if (errDiv) {
             errDiv.innerHTML = "⚠️ <strong>Mode Fichier Détecté :</strong> Tu as ouvert ce fichier HTML directement. L'accès à la base de données requiert un serveur. Lance le serveur avec la commande <code>npm start</code> et ouvre <a href='http://localhost:3000' style='color: var(--primary); font-weight: bold;'>http://localhost:3000</a> dans ton navigateur.";
         }
-    }
-
-    loadStudentsList();
-    
-    // Détection de l'API Serverless
-    try {
-        var controller = new AbortController();
-        var timeoutId  = setTimeout(function() { controller.abort(); }, 3000);
-        var res = await fetch("/api/evaluate", { method: 'OPTIONS', signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        if (res.status === 200 || res.ok) {
-            AppState.serverMode = true;
-            console.log("[ESEPAC] Serveur Node.js détecté. Clé école sécurisée.");
-        } else {
-            throw new Error();
-        }
-    } catch(e) {
         AppState.serverMode = false;
-        console.log("[ESEPAC] Mode local : Serveur Node.js indisponible.");
+        return; // Stop execution on file protocol since no backend is available
     }
 
-    // Tenter de restaurer la session sauvegardée
+    // Afficher un loader pendant l'initialisation
+    if (loaderScreen) {
+        loaderScreen.style.display = "flex";
+        loaderText.innerText = "Connexion au serveur...";
+    }
+
+    // ── ÉTAPE 1 : Détecter le serveur avec retry ──────────────────────────
+    AppState.serverMode = await detectServerWithRetry();
+
+    // ── ÉTAPE 2 : Charger les classes avec retry ──────────────────────────
+    if (loaderText) {
+        loaderText.innerText = "Chargement des classes...";
+    }
+    const loaded = await loadStudentsListWithRetry();
+
+    if (loaderScreen) {
+        loaderScreen.style.display = "none";
+    }
+
+    if (!loaded) {
+        var errDiv = document.getElementById("welcome-error");
+        if (errDiv) {
+            errDiv.innerHTML = "⚠️ Impossible de contacter le serveur de base de données. <a href='javascript:location.reload()' style='color:var(--primary); font-weight:bold;'>Clique ici pour recharger la page</a>.";
+        }
+        return;
+    }
+
+    // ── ÉTAPE 3 : Restaurer session ───────────────────────────────────────
     if (restoreSessionState()) {
         console.log("[ESEPAC] Restauration de la session active pour :", AppState.studentName);
         if (AppState.sessionPacks && AppState.sessionPacks.length > 0) {
@@ -1082,22 +1091,83 @@ window.addEventListener("DOMContentLoaded", async function() {
 
 var allStudentsData = []; // Données des étudiants chargées de l'API
 
-async function loadStudentsList() {
-    try {
-        var res = await fetch("/api/users");
-        if (res.ok) {
-            allStudentsData = await res.json();
-            populateClassSelect();
-        } else {
-            console.error("[ESEPAC] Impossible de charger la liste des étudiants.");
-            document.getElementById("welcome-error").innerText = "Impossible de charger la liste des classes depuis la base de données (Erreur " + res.status + ").";
-        }
-    } catch (e) {
-        console.error("[ESEPAC] Erreur de communication API users:", e);
-        if (window.location.protocol !== 'file:') {
-            document.getElementById("welcome-error").innerText = "Erreur de communication avec l'API /api/users. Vérifie que le serveur de développement est bien lancé.";
+// Utilitaire de pause
+function sleep(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+// ── Détection serveur avec retry (3 tentatives) ───────────────────────────
+async function detectServerWithRetry() {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+        try {
+            var controller = new AbortController();
+            var timeoutId  = setTimeout(function() { controller.abort(); }, 6000); // 6s par tentative
+            var res = await fetch("/api/evaluate", { method: 'OPTIONS', signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (res.ok || res.status === 200) return true;
+        } catch(e) {
+            console.warn("[ESEPAC] Tentative serveur " + attempt + "/3 échouée");
+            if (attempt < 3) await sleep(1500); // attente 1.5s entre les tentatives
         }
     }
+    return false;
+}
+
+// ── Chargement classes avec retry (3 tentatives) ─────────────────────────
+async function loadStudentsListWithRetry() {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+        try {
+            var controller = new AbortController();
+            var timeoutId  = setTimeout(function() { controller.abort(); }, 8000);
+            var res = await fetch("/api/users", { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+                console.warn("[ESEPAC] /api/users statut " + res.status + ", tentative " + attempt + "/3");
+                if (attempt < 3) { await sleep(2000); continue; }
+                return false;
+            }
+
+            var data = await res.json();
+
+            // ── Robustesse sur le format de réponse ────────────────────
+            if (Array.isArray(data)) {
+                allStudentsData = data;
+            } else if (data && Array.isArray(data.users)) {
+                allStudentsData = data.users;
+            } else if (data && Array.isArray(data.data)) {
+                allStudentsData = data.data;
+            } else {
+                console.error("[ESEPAC] Format inattendu /api/users :", JSON.stringify(data).slice(0, 200));
+                if (attempt < 3) { await sleep(2000); continue; }
+                return false;
+            }
+
+            // ── Vérification du champ "class" et normalisation ─────────
+            if (allStudentsData.length > 0) {
+                var sample = allStudentsData[0];
+                var classField = ["class", "classe", "group", "promo", "promotion"]
+                    .find(function(f) { return sample[f] !== undefined; });
+                if (classField && classField !== "class") {
+                    allStudentsData = allStudentsData.map(function(s) {
+                        var cloned = Object.assign({}, s);
+                        cloned.class = s[classField];
+                        return cloned;
+                    });
+                    console.warn("[ESEPAC] Champ de classe normalisé depuis :", classField);
+                }
+            }
+
+            populateClassSelect();
+            AppState.serverMode = true; // Si l'API users a fonctionné, le serveur tourne
+            return true;
+
+        } catch(e) {
+            console.warn("[ESEPAC] Erreur /api/users tentative " + attempt + "/3:", e.message);
+            if (attempt < 3) await sleep(2000);
+        }
+    }
+    return false;
 }
 
 function populateClassSelect() {
@@ -1248,6 +1318,16 @@ document.getElementById("btn-start").addEventListener("click", async function() 
 
     document.getElementById("welcome-error").innerText = "";
     document.getElementById("btn-start").disabled = true;
+
+    // Test de secours si la détection initiale avait échoué ou expiré
+    if (!AppState.serverMode) {
+        try {
+            var pingRes = await fetch("/api/users");
+            if (pingRes.status === 200 || pingRes.ok) {
+                AppState.serverMode = true;
+            }
+        } catch(e) {}
+    }
 
     if (!AppState.serverMode) {
         document.getElementById("welcome-error").innerText = "Le serveur d'évaluation (API) est inaccessible.";

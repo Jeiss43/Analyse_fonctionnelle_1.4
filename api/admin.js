@@ -23,6 +23,7 @@ module.exports = async function handler(req, res) {
 
   // GET: Récupère les statistiques (Méta-analyse & Individuel)
   if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
       // 1. Infos de base sur les utilisateurs
       const { data: users, error: usersErr } = await supabase
