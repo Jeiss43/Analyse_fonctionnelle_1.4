@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
       // 1. Infos de base sur les utilisateurs
       const { data: users, error: usersErr } = await supabase
         .from('users')
-        .select('id, name, firstname, classe, role')
+        .select('id, name, firstname, "class", role')
         .eq('role', 'student');
 
       if (usersErr) throw usersErr;
@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
           id: user.id,
           name: user.name,
           firstname: user.firstname,
-          class: user.classe,
+          class: user.class,
           sessionsCount: userSessions.length,
           maxScore,
           avgScore,
@@ -193,7 +193,7 @@ module.exports = async function handler(req, res) {
             {
               name,
               firstname,
-              classe: className,
+              class: className,
               password,
               role: 'student'
             }
@@ -218,10 +218,10 @@ module.exports = async function handler(req, res) {
         const usersToInsert = users.map(u => ({
           name: (u.name || '').trim(),
           firstname: (u.firstname || '').trim(),
-          classe: (u.class || u.className || u.classe || '').trim(),
+          class: (u.class || u.className || '').trim(),
           password: (u.password || '').trim() || `${(u.firstname || 'esepac').trim().toLowerCase()}${Math.floor(100 + Math.random() * 900)}`,
           role: 'student'
-        })).filter(u => u.name && u.firstname && u.classe);
+        })).filter(u => u.name && u.firstname && u.class);
 
         if (usersToInsert.length === 0) {
           return res.status(400).json({ error: 'Aucun utilisateur valide à insérer.' });
@@ -323,7 +323,7 @@ module.exports = async function handler(req, res) {
         const { data: usersInClass, error: usersErr } = await supabase
           .from('users')
           .select('id')
-          .eq('classe', className)
+          .eq('"class"', className)
           .eq('role', 'student');
 
         if (usersErr) throw usersErr;
@@ -367,7 +367,7 @@ module.exports = async function handler(req, res) {
         const { data: usersInClass, error: usersErr } = await supabase
           .from('users')
           .select('id')
-          .eq('classe', className)
+          .eq('"class"', className)
           .eq('role', 'student');
 
         if (usersErr) throw usersErr;
