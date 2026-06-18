@@ -1045,14 +1045,14 @@ window.addEventListener("DOMContentLoaded", async function() {
         if (errDiv) {
             errDiv.innerHTML = "⚠️ <strong>Mode Fichier Détecté :</strong> Tu as ouvert ce fichier HTML directement. L'accès à la base de données requiert un serveur. Lance le serveur avec la commande <code>npm start</code> et ouvre <a href='http://localhost:3000' style='color: var(--primary); font-weight: bold;'>http://localhost:3000</a> dans ton navigateur.";
         }
+        AppState.serverMode = false;
+        return; // Stop execution on file protocol since no backend is available
     }
 
-    loadStudentsList();
-    
-    // Détection de l'API Serverless
+    // Détection de l'API Serverless en premier
     try {
         var controller = new AbortController();
-        var timeoutId  = setTimeout(function() { controller.abort(); }, 3000);
+        var timeoutId  = setTimeout(function() { controller.abort(); }, 5000);
         var res = await fetch("/api/evaluate", { method: 'OPTIONS', signal: controller.signal });
         clearTimeout(timeoutId);
         
@@ -1067,7 +1067,10 @@ window.addEventListener("DOMContentLoaded", async function() {
         console.log("[ESEPAC] Mode local : Serveur Node.js indisponible.");
     }
 
-    // Tenter de restaurer la session sauvegardée
+    // Charger les classes avec await
+    await loadStudentsList();
+
+    // Tenter de restaurer la session sauvegardée après chargement
     if (restoreSessionState()) {
         console.log("[ESEPAC] Restauration de la session active pour :", AppState.studentName);
         if (AppState.sessionPacks && AppState.sessionPacks.length > 0) {
@@ -1248,6 +1251,16 @@ document.getElementById("btn-start").addEventListener("click", async function() 
 
     document.getElementById("welcome-error").innerText = "";
     document.getElementById("btn-start").disabled = true;
+
+    // Test de secours si la détection initiale avait échoué ou expiré
+    if (!AppState.serverMode) {
+        try {
+            var pingRes = await fetch("/api/users");
+            if (pingRes.status === 200 || pingRes.ok) {
+                AppState.serverMode = true;
+            }
+        } catch(e) {}
+    }
 
     if (!AppState.serverMode) {
         document.getElementById("welcome-error").innerText = "Le serveur d'évaluation (API) est inaccessible.";
