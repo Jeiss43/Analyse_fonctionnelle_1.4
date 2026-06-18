@@ -1,0 +1,2728 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entraînement AF | ESEPAC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- html2pdf.js for client-side PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --primary: #0ea5e9;
+            --secondary: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --error: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            font-family: 'Outfit', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(79,70,229,0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14,165,233,0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 2rem 1rem; line-height: 1.6;
+        }
+        .container {
+            width: 100%; max-width: 900px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            overflow: hidden; position: relative;
+            transition: all 0.3s ease;
+        }
+        .container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            z-index: 10;
+        }
+        
+        /* En-têtes */
+        header {
+            padding: 2.5rem 2.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo-img {
+            max-height: 70px;
+            margin-bottom: 1rem;
+            object-fit: contain;
+        }
+        h1 {
+            font-size: 2rem; font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem; letter-spacing: -0.02em;
+        }
+        header p { color: var(--primary); font-weight: 600; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        
+        .content { padding: 2.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
+        
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            background: rgba(15,23,42,0.6);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: white; padding: 1rem 1.25rem;
+            border-radius: 12px; font-family: inherit; font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(14,165,233,0.15);
+            background: rgba(15,23,42,0.9);
+        }
+
+        /* Accueil spécifique */
+        .welcome-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            color: #cbd5e1;
+        }
+        .welcome-card h3 { color: white; margin-bottom: 0.5rem; font-size: 1.1rem; }
+        
+        .saved-profiles {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        .profile-chip {
+            background: rgba(79,70,229,0.15);
+            border: 1px solid rgba(79,70,229,0.3);
+            color: #a5b4fc;
+            padding: 0.4rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .profile-chip:hover {
+            background: rgba(79,70,229,0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Niveaux */
+        .level-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .level-btn {
+            background: rgba(15,23,42,0.6);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .level-btn.active {
+            border-color: var(--primary);
+            background: rgba(14,165,233,0.1);
+            box-shadow: 0 0 15px rgba(14,165,233,0.1);
+        }
+        .level-title { font-weight: 700; color: white; font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .level-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Session UI */
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 1.5rem;
+            background: rgba(255,255,255,0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Formulaire Fonctions */
+        .functions-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+        .function-row {
+            display: flex; align-items: center; gap: 1rem;
+            animation: slideIn 0.3s ease-out forwards; opacity: 0; transform: translateX(-10px);
+        }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        .function-number { font-weight: 800; color: var(--primary); font-size: 1.2rem; min-width: 30px; text-align: right; }
+        
+        .func-feedback-hint {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            padding-left: 3rem;
+            display: none;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .func-feedback-hint.warning { color: var(--warning); display: flex; }
+        .func-feedback-hint.error { color: var(--error); display: flex; }
+
+        .btn-add {
+            background: rgba(79,70,229,0.1); border: 1px dashed rgba(79,70,229,0.5);
+            color: #a5b4fc; box-shadow: none; font-size: 0.95rem;
+            padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;
+            text-transform: none; letter-spacing: 0;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            border-radius: 12px; width: 100%; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-add:hover { background: rgba(79,70,229,0.2); }
+
+        .btn-delete {
+            background: transparent; border: none;
+            color: rgba(244,63,94,0.4); cursor: pointer;
+            font-size: 1.1rem; padding: 0.4rem 0.6rem;
+            border-radius: 8px; width: auto; box-shadow: none;
+            transition: color 0.2s, background 0.2s; flex-shrink: 0;
+        }
+        .btn-delete:hover { color: #f43f5e; background: rgba(244,63,94,0.1); }
+
+        .packaging-context {
+            font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 1rem;
+            background: rgba(255,255,255,0.05); padding: 1.2rem;
+            border-radius: 16px; border-left: 4px solid var(--primary);
+        }
+        .packaging-context::before { content: '📦'; font-size: 1.8rem; flex-shrink: 0; }
+        
+        .rules-reminder {
+            font-size: 0.95rem; color: var(--text-muted);
+            background: rgba(79,70,229,0.08); border-left: 4px solid var(--secondary);
+            padding: 1.2rem; border-radius: 0 12px 12px 0; margin-bottom: 1.5rem;
+        }
+        .rules-reminder strong { color: var(--primary); }
+        .rules-reminder ul { margin-left: 1.5rem; margin-top: 0.5rem; line-height: 1.7; }
+
+        /* Boutons */
+        button.action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white; border: none;
+            padding: 1rem 2rem; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(14,165,233,0.3);
+            text-transform: uppercase; letter-spacing: 0.05em;
+            display: flex; justify-content: center; align-items: center; gap: 0.5rem;
+        }
+        button.action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 25px -5px rgba(14,165,233,0.4); filter: brightness(1.1); }
+        button.action-btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; box-shadow: none; }
+        
+        .button-group-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        @media(min-width: 600px) {
+            .button-group-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-muted); box-shadow: none;
+        }
+        .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: white; }
+
+        .btn-export {
+            background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.4);
+            color: #6ee7b7; box-shadow: none;
+        }
+        .btn-export:hover:not(:disabled) { background: rgba(16,185,129,0.2); }
+
+        /* Onglets pour l'écran Bilan */
+        .bilan-tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.3rem;
+            margin-bottom: 2rem;
+            gap: 0.25rem;
+        }
+        .bilan-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .bilan-tab-btn:hover {
+            color: white;
+            background: rgba(255,255,255,0.02);
+        }
+        .bilan-tab-btn.active {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+        }
+        
+        /* Conteneurs d'onglets */
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Jauge circulaire de réussite */
+        .success-gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        @media(min-width: 500px) {
+            .success-gauge-container {
+                flex-direction: row;
+                text-align: left;
+                gap: 2rem;
+            }
+        }
+        .circle-svg {
+            width: 100px;
+            height: 100px;
+            transform: rotate(-90deg);
+        }
+        .circle-bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.05);
+            stroke-width: 8px;
+        }
+        .circle-bar {
+            fill: none;
+            stroke: #06b6d4;
+            stroke-width: 8px;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283; /* 283 is full circle: 2 * PI * r (r=45) */
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        
+        /* Tableau d'exercices de session */
+        .session-table-wrapper {
+            margin-top: 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow-x: auto;
+        }
+        .session-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+            min-width: 500px;
+        }
+        .session-table th {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .session-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+        }
+        .session-table tr:last-child td {
+            border-bottom: none;
+        }
+        .session-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Cartes de statistiques globales */
+        .global-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        @media(min-width: 500px) {
+            .global-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .global-stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 1.25rem 1rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .global-stat-card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+        .global-stat-card-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        /* Écran Bilan */
+        .bilan-score-card {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(14,165,233,0.15) 100%);
+            border: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px -10px rgba(14,165,233,0.15);
+        }
+        .bilan-score-title { font-size: 1.2rem; color: #a5b4fc; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .bilan-score-value { font-size: 4rem; font-weight: 800; color: white; margin: 0.5rem 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        
+        .bilan-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media(min-width: 600px) {
+            .bilan-summary-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .summary-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+        .summary-card.strengths { border-left: 4px solid var(--success); }
+        .summary-card.vigilance { border-left: 4px solid var(--error); }
+        .summary-card h4 { font-size: 1.1rem; margin-bottom: 0.75rem; color: white; display: flex; align-items: center; gap: 0.5rem; }
+        .summary-card ul { margin-left: 1.25rem; font-size: 0.95rem; color: #cbd5e1; }
+        .summary-card li { margin-bottom: 0.4rem; }
+
+        /* Leaderboard */
+        .leaderboard-container {
+            background: rgba(15,23,42,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .leaderboard-title {
+            font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
+            color: var(--primary); margin-bottom: 1rem; text-align: center;
+            letter-spacing: 0.05em; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .leaderboard-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .leaderboard-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 1rem; border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            font-size: 0.95rem;
+        }
+        .leaderboard-row.user-row {
+            background: rgba(14,165,233,0.15);
+            border: 1px solid rgba(14,165,233,0.4);
+            font-weight: 700;
+        }
+        .leaderboard-rank { font-weight: 800; min-width: 30px; }
+        .leaderboard-name { flex-grow: 1; margin-left: 0.5rem; }
+        .leaderboard-score { font-weight: 700; color: var(--primary); }
+        .leaderboard-row.user-row .leaderboard-score { color: white; }
+
+        /* Feedback Area & Comparatif */
+        .feedback-box {
+            margin-top: 2rem; background: rgba(15,23,42,0.9);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+            padding: 2rem; animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        .evaluation-comparatif {
+            display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;
+        }
+        .comparatif-row {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+        .comparatif-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem; margin-bottom: 0.75rem;
+        }
+        .comparatif-label { font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+        .comparatif-body {
+            display: grid; grid-template-columns: 1fr; gap: 1rem;
+        }
+        @media(min-width: 600px) {
+            .comparatif-body { grid-template-columns: 1fr 1fr; }
+        }
+        .comparatif-col {
+            display: flex; flex-direction: column;
+        }
+        .comparatif-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.25rem; color: #cbd5e1; }
+        .comparatif-text { font-size: 0.95rem; color: white; }
+        .comparatif-comment { font-size: 0.9rem; color: #cbd5e1; font-style: italic; margin-top: 0.5rem; background: rgba(255,255,255,0.03); padding: 0.5rem 0.75rem; border-radius: 8px; }
+        
+        .badge {
+            display: inline-block; padding: 0.25rem 0.75rem; border-radius: 99px;
+            font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .badge-correct   { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-incorrect { background: rgba(244,63,94,0.15);  color: #fda4af; border: 1px solid rgba(244,63,94,0.3); }
+        .badge-partial   { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+        
+        .bonus-alert {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.4);
+            color: #fcd34d;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .hidden { display: none !important; }
+
+        @media(min-width: 768px) {
+            #db-main-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+
+        .loader-container { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 0; gap: 1.5rem; }
+        .loader-spinner { width: 50px; height: 50px; border: 4px solid rgba(14,165,233,0.2); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; }
+        .loader-text { color: var(--primary); font-weight: 700; font-size: 1.1rem; animation: pulse 1.5s infinite; text-align: center; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+        /* Message d'impression bloquée - Masqué à l'écran */
+        .print-blocked-message { display: none; }
+        .print-only { display: none !important; }
+
+        /* CSS Impression : Désactive l'impression directe du navigateur */
+        @media print {
+            body {
+                background: #020617 !important;
+                color: #f8fafc !important;
+                padding: 2rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                min-height: 100vh !important;
+                font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            }
+            .container {
+                display: none !important;
+            }
+            .print-blocked-message {
+                display: block !important;
+                text-align: center;
+                background: #0f172a !important;
+                border: 2px solid #38bdd8 !important;
+                padding: 3rem;
+                border-radius: 24px;
+                max-width: 600px;
+                margin: auto;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            }
+            .print-blocked-message h2 {
+                color: #f43f5e;
+                font-size: 2rem;
+                font-weight: 800;
+                margin-bottom: 1.5rem;
+            }
+            .print-blocked-message p {
+                font-size: 1.1rem;
+                color: #cbd5e1;
+                line-height: 1.6;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- En-tête imprimable caché sur écran -->
+    <div class="print-only">
+        <div class="print-header">
+            <div class="print-header-text">
+                <h2>BILAN DE TP : ANALYSE FONCTIONNELLE</h2>
+                <p>Master Packaging · ESEPAC</p>
+            </div>
+            <img class="print-logo" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
+        </div>
+        
+        <div class="print-info-grid">
+            <div class="print-info-item">👤 Étudiant : <strong id="print-user-name">...</strong></div>
+            <div class="print-info-item">📅 Date : <strong id="print-date">...</strong></div>
+            <div class="print-info-item">⚙️ Niveau : <strong id="print-level">...</strong></div>
+            <div class="print-info-item">🏆 Score global : <strong id="print-score">...</strong></div>
+        </div>
+    </div>
+
+    <!-- ÉCRAN DASHBOARD ÉTUDIANT (POSITIONNEMENT & PROGRES) -->
+    <div id="screen-student-dashboard" class="hidden">
+        <header>
+            <img class="logo-img" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
+            <h1 id="db-welcome-title">Mon Espace Personnel</h1>
+            <p id="db-welcome-subtitle">Master Packaging · ESEPAC</p>
+        </header>
+        <div class="content" style="display:flex; flex-direction:column; gap:2rem;">
+            
+            <!-- Message de bienvenue interactif -->
+            <div style="background:linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(14,165,233,0.15) 100%); border:1px solid var(--border); border-radius:18px; padding:1.5rem; text-align:center;">
+                <h3 style="color:white; font-size:1.3rem; margin-bottom:0.5rem; font-weight:700;">Prêt à relever le défi, <span id="db-student-name" style="color:var(--primary);">...</span> ?</h3>
+                <p style="color:#cbd5e1; font-size:0.95rem;">Analyse tes statistiques ci-dessous pour perfectionner ton approche avant de lancer ton TP.</p>
+            </div>
+
+            <!-- Grille Principale (Classement + Vigilance) -->
+            <div style="display:grid; grid-template-columns:1fr; gap:1.5rem; width:100%;" id="db-main-grid">
+                <!-- Bloc Classement -->
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.5rem;">
+                    <h3 style="color:white; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.5rem;">🏆 Classement de la classe</h3>
+                    <div id="db-ranking-list" style="display:flex; flex-direction:column; gap:0.6rem; max-height:260px; overflow-y:auto; padding-right:0.25rem;">
+                        <!-- Dynamique -->
+                    </div>
+                </div>
+
+                <!-- Bloc Vigilance (Jauges d'erreurs animées) -->
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.5rem;">
+                    <h3 style="color:white; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.5rem;">🚨 Mes Points de Vigilance</h3>
+                    
+                    <div style="display:flex; flex-direction:column; gap:1rem;" id="db-vigilance-bars">
+                        <!-- Dynamique -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloc Historique de progression -->
+            <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.5rem; width:100%;">
+                <h3 style="color:white; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.5rem;">📈 Historique de mes entraînements</h3>
+                <div id="db-history-timeline" style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <!-- Dynamique -->
+                </div>
+            </div>
+
+            <!-- Action principale -->
+            <div style="display:flex; flex-direction:column; gap:1rem; align-items:center; margin-top:0.5rem;">
+                <button id="btn-start-tp" class="action-btn" style="padding:1.2rem 2.5rem; font-size:1.2rem; border-radius:16px;">🚀 Démarrer l'entraînement (5 emballages + Bonus)</button>
+                <button id="btn-logout" class="action-btn btn-secondary" style="max-width:200px; padding:0.5rem 1rem; font-size:0.9rem;">Se déconnecter</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ÉCRAN D'ACCUEIL -->
+    <div id="screen-welcome">
+        <header>
+            <img class="logo-img" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
+            <h1>Entraînement AF</h1>
+            <p>Master Packaging · ESEPAC</p>
+        </header>
+        <div class="content">
+            <div class="welcome-card">
+                <h3>Bienvenue dans ton module d'entraînement !</h3>
+                <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+                    Ce simulateur interactif te permet d'analyser des emballages variés issus de la vie réelle. Tu rédigeras le cahier des charges fonctionnel de chaque produit, et notre <strong>Expert IA</strong> évaluera la pertinence de tes propositions en temps réel. Une session d'entraînement est désormais réduite à <strong>5 emballages</strong>, et terminer la session complète te rapporte un <strong>bonus exceptionnel de progression</strong> !
+                </p>
+                <p style="font-size:0.9rem;color:var(--primary);font-weight:700;">
+                    Objectif : S'abstraire de la solution physique pour exprimer le besoin fondamental.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="class-select">Choisis ta Classe :</label>
+                <select id="class-select" style="width:100%; padding:0.75rem; border-radius:8px; background:rgba(15,23,42,0.9); color:white; border:1px solid rgba(255,255,255,0.15); margin-bottom:1.25rem;">
+                    <option value="">-- Sélectionner une classe --</option>
+                </select>
+                
+                <label for="student-select">Sélectionne ton Nom :</label>
+                <select id="student-select" style="width:100%; padding:0.75rem; border-radius:8px; background:rgba(15,23,42,0.9); color:white; border:1px solid rgba(255,255,255,0.15); margin-bottom:1.25rem;" disabled>
+                    <option value="">-- Choisir d'abord une classe --</option>
+                </select>
+
+                <label for="student-password">Mot de passe :</label>
+                <input type="password" id="student-password" placeholder="Saisis ton mot de passe" style="width:100%; padding:0.75rem; border-radius:8px; background:rgba(15,23,42,0.9); color:white; border:1px solid rgba(255,255,255,0.15); margin-bottom:1.25rem;" disabled>
+            </div>
+            
+            <div style="text-align: right; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                <a href="admin.html" style="font-size: 0.9rem; color: var(--primary); text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">⚙️ Accès Enseignant / Administration</a>
+            </div>
+
+            <div class="form-group">
+                <label>Choisis ton niveau :</label>
+                <div class="level-selector">
+                    <div id="btn-lvl-debutant" class="level-btn active" onclick="selectLevel('debutant')">
+                        <div class="level-title">Débutant</div>
+                        <div class="level-desc">Idéal pour démarrer. Blacklist stricte sur les verbes d'état (être, avoir...).</div>
+                    </div>
+                    <div id="btn-lvl-avance" class="level-btn" onclick="selectLevel('avance')">
+                        <div class="level-title">Avancé</div>
+                        <div class="level-desc">Règles standards ESEPAC. Focus sur le cycle de vie &amp; perspectives.</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="btn-start" class="action-btn">Démarrer la Session</button>
+            <p id="welcome-error" style="color:var(--error);margin-top:1rem;text-align:center;font-weight:600;"></p>
+        </div>
+    </div>
+
+    <!-- LOADER DE CHARGEMENT -->
+    <div id="screen-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loader-text">Initialisation en cours…</div>
+    </div>
+
+    <!-- ÉCRAN D'EXERCICE -->
+    <div id="screen-exercise" class="hidden">
+        <header>
+            <img class="logo-img" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
+            <h1 id="exercise-title">Exercice en cours</h1>
+            <div class="session-header">
+                <div style="font-size:0.9rem;font-weight:700;">PRODUIT <span id="sess-num">1</span> / 5</div>
+                <div class="progress-container">
+                    <div id="sess-progress" class="progress-bar"></div>
+                </div>
+                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);"><span id="sess-score">0</span> PTS</div>
+            </div>
+        </header>
+        <div class="content">
+
+            <div id="packaging-context" class="packaging-context">Chargement…</div>
+
+            <div id="rules-box" class="rules-reminder"></div>
+
+            <!-- Aide interactive : Catégories de fonctions -->
+            <div id="help-box" class="rules-reminder" style="border-left-color: var(--primary); background: rgba(14, 165, 233, 0.05); margin-top: -0.5rem; margin-bottom: 1.5rem; padding: 1rem 1.2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleHelp()">
+                    <strong style="color: var(--primary); display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">📖 Aide : Catégories &amp; Verbes d'action</strong>
+                    <span id="help-toggle-icon" style="color: var(--primary); font-size: 0.8rem; font-weight: 700;">▼ Afficher</span>
+                </div>
+                <div id="help-content" class="hidden" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; font-size: 0.9rem; line-height: 1.5;">
+                        <div>
+                            <strong style="color: #6ee7b7; display: block; margin-bottom: 0.25rem;">🛡️ Protection &amp; Conservation</strong>
+                            <span style="color: #cbd5e1;">Protéger (des chocs), Isoler (thermiquement), Préserver (les arômes), Garantir (l'étanchéité), Faire barrière (à l'oxygène, à l'humidité).</span>
+                        </div>
+                        <div>
+                            <strong style="color: #a5b4fc; display: block; margin-bottom: 0.25rem;">📦 Logistique &amp; Flux</strong>
+                            <span style="color: #cbd5e1;">Contenir (le volume), Regrouper (en fardeaux), Faciliter (la préhension/palettisation), Optimiser (le remplissage), Stabiliser (la charge), Supporter (l'écrasement).</span>
+                        </div>
+                        <div>
+                            <strong style="color: #fcd34d; display: block; margin-bottom: 0.25rem;">📢 Marketing &amp; Usage</strong>
+                            <span style="color: #cbd5e1;">Informer (sur les ingrédients), Valoriser (l'image de marque), Restituer (le produit), Doser (la quantité), Séduire (le prospect).</span>
+                        </div>
+                        <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.75rem; font-size: 0.85rem; color: #f87171;">
+                            <strong>🚫 Règles &amp; Mots interdits :</strong> Verbes d'état (être, avoir...), composants physiques (bouchon, carton...), adverbes subjectifs (bien, facilement...), tournures négatives (ne pas...), critères économiques (coût, poids) ou environnementaux (recyclage, fin de vie, ACV).
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size:1rem;color:white;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.5rem;margin-bottom:1.25rem;display:block;">
+                    Rédige tes fonctions :
+                </label>
+                
+                <div id="functions-container" class="functions-list"></div>
+                
+                <p id="validation-msg" class="validation-msg"></p>
+                <button id="btn-add-function" class="btn-add">+ Ajouter une fonction</button>
+            </div>
+
+            <button id="btn-submit" class="action-btn">Soumettre à l'Expert IA</button>
+
+            <div id="loading-indicator" class="loader-container">
+                <div class="loader-spinner"></div>
+                <div class="loader-text" id="loader-text-analysis">Analyse sémantique et physique en cours…</div>
+            </div>
+
+            <!-- Zone de Feedback -->
+            <div id="feedback-area" class="feedback-box hidden">
+                <div id="bonus-container"></div>
+                <h3 style="color:white;font-size:1.2rem;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.5rem;">Évaluation de l'Expert</h3>
+                
+                <!-- Tableau Comparatif Pédagogique -->
+                <div id="feedback-comparatif" class="evaluation-comparatif"></div>
+                
+                <div id="feedback-general" style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08);"></div>
+                
+                <div class="button-group-row">
+                    <button id="btn-next-pack" class="action-btn btn-secondary">Charger le produit suivant</button>
+                    <button id="btn-finish-session" class="action-btn">Terminer la session &amp; Bilan</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ÉCRAN BILAN FINAL -->
+    <div id="screen-bilan" class="hidden">
+        <header>
+            <img class="logo-img" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
+            <h1>Bilan d'Entraînement</h1>
+            <p>Master Packaging · ESEPAC</p>
+        </header>
+        <div class="content">
+            <!-- Onglets de Navigation -->
+            <div class="bilan-tabs">
+                <button class="bilan-tab-btn active" id="tab-btn-session" onclick="switchBilanTab('session')">
+                    📦 Bilan de Session
+                </button>
+                <button class="bilan-tab-btn" id="tab-btn-global" onclick="switchBilanTab('global')">
+                    📊 Mon Profil Global
+                </button>
+            </div>
+
+            <!-- Onglet 1 : Session -->
+            <div id="tab-session" class="tab-pane active">
+                <div class="bilan-score-card">
+                    <div class="bilan-score-title">Score Obtenu</div>
+                    <div id="bilan-score-value" class="bilan-score-value">0</div>
+                    <div id="bilan-summary-text" style="color:#a5b4fc;font-size:1rem;font-weight:600;">...</div>
+                </div>
+
+                <div class="success-gauge-container">
+                    <svg class="circle-svg">
+                        <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                        <circle id="session-circle-bar" class="circle-bar" cx="50" cy="50" r="45"></circle>
+                        <text id="session-circle-text" class="circle-text" x="50" y="50">0%</text>
+                    </svg>
+                    <div>
+                        <h4 style="color:white; font-size:1.1rem; font-weight:700; margin-bottom:0.25rem;">Taux de Réussite de Session</h4>
+                        <p style="color:var(--text-muted); font-size:0.9rem;">Pourcentage de fonctions validées comme correctes par l'expert IA.</p>
+                    </div>
+                </div>
+
+                <div class="bilan-summary-grid">
+                    <div class="summary-card strengths">
+                        <h4>✓ Mes Points Forts</h4>
+                        <ul id="list-strengths"></ul>
+                    </div>
+                    <div class="summary-card vigilance">
+                        <h4>⚠ Points de Vigilance</h4>
+                        <ul id="list-vigilance"></ul>
+                    </div>
+                </div>
+
+                <h4 style="color:white; font-size:1.1rem; font-weight:700; margin-top:2rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">📋 Détail des Emballages Analysés</h4>
+                <div class="session-table-wrapper">
+                    <table class="session-table">
+                        <thead>
+                            <tr>
+                                <th>Emballage</th>
+                                <th style="width: 100px; text-align: center;">Score</th>
+                                <th style="width: 180px; text-align: center;">Validité (Correctes)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="session-table-body">
+                            <!-- Dynamique -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Onglet 2 : Global -->
+            <div id="tab-global" class="tab-pane">
+                <div class="global-stats-grid">
+                    <div class="global-stat-card">
+                        <div class="global-stat-card-title">Score Cumulé</div>
+                        <div id="global-score-cumul" class="global-stat-card-value">0</div>
+                    </div>
+                    <div class="global-stat-card">
+                        <div class="global-stat-card-title">Sessions Jouées</div>
+                        <div id="global-sessions-count" class="global-stat-card-value">0</div>
+                    </div>
+                    <div class="global-stat-card">
+                        <div class="global-stat-card-title">Rigueur Moyenne</div>
+                        <div id="global-percentage-avg" class="global-stat-card-value">0%</div>
+                    </div>
+                </div>
+
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.5rem; margin-bottom:2rem;">
+                    <h3 style="color:white; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.5rem;">📈 Historique de mes scores</h3>
+                    <div id="global-history-timeline" style="display:flex; flex-direction:column; gap:0.75rem;">
+                        <!-- Dynamique -->
+                    </div>
+                </div>
+
+                <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.5rem;">
+                    <h3 style="color:white; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.5rem;">🚨 Mes Points de Vigilance Historiques</h3>
+                    <div style="display:flex; flex-direction:column; gap:1rem;" id="global-vigilance-bars">
+                        <!-- Dynamique -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="button-group-row" style="margin-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;">
+                <button id="btn-print-report" class="action-btn btn-export">📥 Télécharger mon Rapport PDF</button>
+                <button id="btn-restart" class="action-btn btn-secondary">Nouvelle Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteneur temporaire pour l'export PDF (Invisible à l'écran) -->
+    <div id="pdf-export-container" style="display: none;"></div>
+
+</div>
+
+<!-- Message d'avertissement d'impression directe bloquée -->
+<div class="print-blocked-message">
+    <h2>⚠️ Impression directe désactivée</h2>
+    <p>Le format d'impression standard de votre navigateur n'est pas optimisé pour cette application.</p>
+    <p style="margin-top: 1rem; font-weight: bold; color: #06b6d4;">Veuillez cliquer sur le bouton "Télécharger mon Rapport PDF" pour obtenir une synthèse officielle propre de votre travail.</p>
+</div>
+
+<script>
+// ================================================================
+// CATALOGUE DES PACKAGINGS
+// ================================================================
+var PACKAGING_CATALOG = [
+    "Boîte de conserve cylindrique en métal (haricots verts 400 g)",
+    "Étui carton plié pour pâtes alimentaires (500 g)",
+    "Sachet de riz en polypropylène bi-orienté (1 kg)",
+    "Barquette thermoformée en PET pour carottes râpées (200 g)",
+    "Sachet plastique de gruyère râpé sous atmosphère modifiée (200 g)",
+    "Brique de lait UHT en carton multicouche avec bouchon vissant (1 L)",
+    "Pot de yaourt en polystyrène avec opercule aluminium (125 g)",
+    "Bouteille d'eau minérale en PET avec bouchon vissant (1,5 L)",
+    "Coque thermoformée en PET pour oeuf de Pâques en chocolat (100 g)",
+    "Flacon de ketchup souple en PEHD avec bouchon doseur (560 g)",
+    "Barquette thermoformée de jambon cuit sous atmosphère modifiée (4 tranches)",
+    "Filet de pommes de terre en polypropylène avec étiquette carton (2 kg)",
+    "Boîte de biscuits en métal avec couvercle à friction (400 g)",
+    "Pot de confiture en verre avec capsule twist-off (370 g)",
+    "Brick de soupe en carton aseptique avec bouchon vissant (1 L)",
+    "Sachet de café moulu sous vide en complexe aluminium/plastique (250 g)",
+    "Sachet de compote en film complexe type doypack avec bouchon vissant (90 g)",
+    "Filet d'oranges en résille plastique avec étiquette carton (1 kg)",
+    "Boîte de capsules café à usage unique en aluminium (x10)",
+    "Canette de boisson gazeuse en aluminium (33 cL)",
+    "Bouteille de vin en verre avec bouchon liège et capsule (75 cL)",
+    "Tube de dentifrice en plastique avec bouchon à charnière (75 mL)",
+    "Tube pour pastilles effervescentes en PEHD avec bouchon étanche (20 pastilles)",
+    "Flacon de gel hydro-alcoolique en PEHD avec pompe doseuse (300 mL)",
+    "Flacon de shampoing en PEHD avec bouchon à clapet (250 mL)",
+    "Bombe aérosol de déodorant en aluminium avec valve (150 mL)",
+    "Boîte métallique à ouverture facile pour thon en conserve (185 g)",
+    "Tube de crème solaire en aluminium avec bouchon vissant (100 mL)",
+    "Bidon de lessive liquide en PEHD avec bouchon doseur (3 L)",
+    "Flacon pulvérisateur de produit ménager en PET (500 mL)",
+    "Boîte de cotons-tiges en carton recyclé (200 unités)"
+];
+
+// ================================================================
+// ETAT CENTRALISE
+// ================================================================
+var AppState = {
+    serverMode:          false,
+    apiKey:              "",
+    studentId:           "",
+    studentName:         "",
+    studentClass:        "",
+    level:               "debutant",
+    currentPackaging:    "",
+    sessionIndex:        0, // Index du pack courant (0 à 9)
+    sessionPacks:        [], // Liste des packs tirés pour la session en cours
+    sessionScore:        0,
+    sessionHistory:      [], // Historique des réponses et analyses de la session
+    functionFieldsCount: 0,
+    isLoading:           false,
+    shuffledCatalog:     []
+};
+
+var MAX_FIELDS = 8;
+var MIN_FIELDS = 3;
+var MAX_SESSION_PACKS = 5;
+var FETCH_TIMEOUT_MS = 25000;
+
+// Classement de promo simulé (Gamification)
+var LEADERBOARD_TEMPLATES = [
+    { name: "Antoine D.", score: 980 },
+    { name: "Sarah L.", score: 850 },
+    { name: "Maxime G.", score: 720 },
+    { name: "Léa R.", score: 680 },
+    { name: "Professeur AF", score: 620 },
+    { name: "Julien M.", score: 510 },
+    { name: "Chloé T.", score: 440 },
+    { name: "Thomas B.", score: 390 },
+    { name: "Camille P.", score: 280 },
+    { name: "Valentin F.", score: 150 }
+];
+
+// ================================================================
+// INITIALISATION & ENVIRONNEMENT
+// ================================================================
+// Références DOM globales pour éviter les erreurs ReferenceError
+var welcomeScreen, exerciseScreen, bilanScreen, loaderScreen, loaderText;
+var packagingContext, rulesBox, functionsContainer, btnAddFunction, btnSubmit;
+var loadingIndicator, feedbackArea, feedbackComparatif, feedbackGeneral;
+
+window.addEventListener("DOMContentLoaded", async function() {
+    // Initialisation des références DOM
+    welcomeScreen      = document.getElementById("screen-welcome");
+    loaderScreen       = document.getElementById("screen-loader");
+    loaderText         = document.getElementById("loader-text");
+    exerciseScreen     = document.getElementById("screen-exercise");
+    packagingContext   = document.getElementById("packaging-context");
+    rulesBox           = document.getElementById("rules-box");
+    functionsContainer = document.getElementById("functions-container");
+    btnAddFunction     = document.getElementById("btn-add-function");
+    btnSubmit          = document.getElementById("btn-submit");
+    loadingIndicator   = document.getElementById("loading-indicator");
+    feedbackArea       = document.getElementById("feedback-area");
+    feedbackComparatif = document.getElementById("feedback-comparatif");
+    feedbackGeneral    = document.getElementById("feedback-general");
+    bilanScreen        = document.getElementById("screen-bilan");
+
+    loadStudentsList();
+    
+    // Détection de l'API Serverless
+    try {
+        var controller = new AbortController();
+        var timeoutId  = setTimeout(function() { controller.abort(); }, 3000);
+        var res = await fetch("/api/evaluate", { method: 'OPTIONS', signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (res.status === 200 || res.ok) {
+            AppState.serverMode = true;
+            console.log("[ESEPAC] Serveur Node.js détecté. Clé école sécurisée.");
+        } else {
+            throw new Error();
+        }
+    } catch(e) {
+        AppState.serverMode = false;
+        console.log("[ESEPAC] Mode local : Serveur Node.js indisponible.");
+    }
+
+    // Tenter de restaurer la session sauvegardée
+    if (restoreSessionState()) {
+        console.log("[ESEPAC] Restauration de la session active pour :", AppState.studentName);
+        if (AppState.sessionPacks && AppState.sessionPacks.length > 0) {
+            welcomeScreen.classList.add("hidden");
+            exerciseScreen.classList.remove("hidden");
+            loadPackExercise();
+        } else {
+            initStudentDashboard();
+        }
+    }
+});
+
+var allStudentsData = []; // Données des étudiants chargées de l'API
+
+async function loadStudentsList() {
+    try {
+        var res = await fetch("/api/users");
+        if (res.ok) {
+            allStudentsData = await res.json();
+            populateClassSelect();
+        } else {
+            console.error("[ESEPAC] Impossible de charger la liste des étudiants.");
+        }
+    } catch (e) {
+        console.error("[ESEPAC] Erreur de communication API users:", e);
+    }
+}
+
+function populateClassSelect() {
+    var classSelect = document.getElementById("class-select");
+    classSelect.innerHTML = '<option value="">-- Sélectionner une classe --</option>';
+    
+    var classes = [];
+    allStudentsData.forEach(function(s) {
+        if (classes.indexOf(s.class) === -1) {
+            classes.push(s.class);
+        }
+    });
+    classes.sort();
+
+    classes.forEach(function(c) {
+        var opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        opt.style.background = "#0f172a";
+        classSelect.appendChild(opt);
+    });
+
+    classSelect.addEventListener("change", function() {
+        populateStudentSelect(classSelect.value);
+    });
+}
+
+function populateStudentSelect(className) {
+    var studentSelect = document.getElementById("student-select");
+    var passwordInput = document.getElementById("student-password");
+    
+    studentSelect.innerHTML = '<option value="">-- Sélectionner ton nom --</option>';
+    
+    if (!className) {
+        studentSelect.disabled = true;
+        passwordInput.disabled = true;
+        return;
+    }
+    
+    studentSelect.disabled = false;
+    passwordInput.disabled = false;
+    
+    var students = allStudentsData.filter(function(s) { return s.class === className; });
+    students.forEach(function(s) {
+        var opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.name + " " + s.firstname;
+        opt.style.background = "#0f172a";
+        studentSelect.appendChild(opt);
+    });
+}
+
+function saveProfile(name) {
+    try {
+        var profiles = JSON.parse(localStorage.getItem("esepac_profiles") || "[]");
+        if (profiles.indexOf(name) === -1) {
+            profiles.unshift(name);
+            if (profiles.length > 5) profiles.pop();
+            localStorage.setItem("esepac_profiles", JSON.stringify(profiles));
+        }
+    } catch(e) {}
+}
+
+function saveSessionState() {
+    try {
+        var stateToSave = {
+            studentId: AppState.studentId,
+            studentName: AppState.studentName,
+            studentClass: AppState.studentClass,
+            level: AppState.level,
+            currentPackaging: AppState.currentPackaging,
+            sessionIndex: AppState.sessionIndex,
+            sessionPacks: AppState.sessionPacks,
+            sessionScore: AppState.sessionScore,
+            sessionHistory: AppState.sessionHistory
+        };
+        sessionStorage.setItem("esepac_current_session", JSON.stringify(stateToSave));
+    } catch(e) {}
+}
+
+function restoreSessionState() {
+    try {
+        var saved = sessionStorage.getItem("esepac_current_session");
+        if (saved) {
+            var state = JSON.parse(saved);
+            if (state && state.studentId) {
+                AppState.studentId = state.studentId;
+                AppState.studentName = state.studentName;
+                AppState.studentClass = state.studentClass;
+                AppState.level = state.level || "debutant";
+                AppState.currentPackaging = state.currentPackaging || "";
+                AppState.sessionIndex = state.sessionIndex || 0;
+                AppState.sessionPacks = state.sessionPacks || [];
+                AppState.sessionScore = state.sessionScore || 0;
+                AppState.sessionHistory = state.sessionHistory || [];
+                return true;
+            }
+        }
+    } catch(e) {}
+    return false;
+}
+
+function escapeHtml(str) {
+    if (!str) return "";
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+// ================================================================
+// GESTION DU CHOIX DU NIVEAU & DE L'AIDE
+// ================================================================
+function selectLevel(lvl) {
+    AppState.level = lvl;
+    document.getElementById("btn-lvl-debutant").classList.toggle("active", lvl === 'debutant');
+    document.getElementById("btn-lvl-avance").classList.toggle("active", lvl === 'avance');
+}
+
+function toggleHelp() {
+    var helpContent = document.getElementById("help-content");
+    var helpToggleIcon = document.getElementById("help-toggle-icon");
+    if (helpContent.classList.contains("hidden")) {
+        helpContent.classList.remove("hidden");
+        helpToggleIcon.textContent = "▲ Masquer";
+    } else {
+        helpContent.classList.add("hidden");
+        helpToggleIcon.textContent = "▼ Afficher";
+    }
+}
+
+// Démarrer la session de TP
+document.getElementById("btn-start").addEventListener("click", async function() {
+    var classVal = document.getElementById("class-select").value;
+    var userIdVal = document.getElementById("student-select").value;
+    var passwordVal = document.getElementById("student-password").value;
+    
+    if (!classVal || !userIdVal || !passwordVal) {
+        document.getElementById("welcome-error").innerText = "Sélectionne ta classe, ton nom et saisis ton mot de passe.";
+        return;
+    }
+
+    document.getElementById("welcome-error").innerText = "";
+    document.getElementById("btn-start").disabled = true;
+
+    if (!AppState.serverMode) {
+        document.getElementById("welcome-error").innerText = "Le serveur d'évaluation (API) est inaccessible.";
+        document.getElementById("btn-start").disabled = false;
+        return;
+    }
+
+    var loggedUser = null;
+    // Authentification
+    try {
+        var response = await fetch("/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "login",
+                userId: userIdVal,
+                password: passwordVal
+            })
+        });
+
+        if (!response.ok) {
+            var errData = await response.json();
+            document.getElementById("welcome-error").innerText = errData.error || "Identifiant ou mot de passe incorrect.";
+            document.getElementById("btn-start").disabled = false;
+            return;
+        }
+
+        loggedUser = await response.json();
+        AppState.studentId = loggedUser.id;
+        AppState.studentName = loggedUser.firstname + " " + loggedUser.name;
+        AppState.studentClass = loggedUser.class;
+
+    } catch (e) {
+        document.getElementById("welcome-error").innerText = "Erreur serveur lors de la connexion.";
+        document.getElementById("btn-start").disabled = false;
+        return;
+    }
+
+// Démarrer la session de TP
+document.getElementById("btn-start").addEventListener("click", async function() {
+    var classVal = document.getElementById("class-select").value;
+    var userIdVal = document.getElementById("student-select").value;
+    var passwordVal = document.getElementById("student-password").value;
+    
+    if (!classVal || !userIdVal || !passwordVal) {
+        document.getElementById("welcome-error").innerText = "Sélectionne ta classe, ton nom et saisis ton mot de passe.";
+        return;
+    }
+
+    document.getElementById("welcome-error").innerText = "";
+    document.getElementById("btn-start").disabled = true;
+
+    if (!AppState.serverMode) {
+        document.getElementById("welcome-error").innerText = "Le serveur d'évaluation (API) est inaccessible.";
+        document.getElementById("btn-start").disabled = false;
+        return;
+    }
+
+    var loggedUser = null;
+    // Authentification
+    try {
+        var response = await fetch("/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "login",
+                userId: userIdVal,
+                password: passwordVal
+            })
+        });
+
+        if (!response.ok) {
+            var errData = await response.json();
+            document.getElementById("welcome-error").innerText = errData.error || "Identifiant ou mot de passe incorrect.";
+            document.getElementById("btn-start").disabled = false;
+            return;
+        }
+
+        loggedUser = await response.json();
+        AppState.studentId = loggedUser.id;
+        AppState.studentName = loggedUser.firstname + " " + loggedUser.name;
+        AppState.studentClass = loggedUser.class;
+
+    } catch (e) {
+        document.getElementById("welcome-error").innerText = "Erreur serveur lors de la connexion.";
+        document.getElementById("btn-start").disabled = false;
+        return;
+    }
+
+    saveSessionState();
+    initStudentDashboard();
+});
+
+async function initStudentDashboard() {
+    document.getElementById("screen-welcome").classList.add("hidden");
+    document.getElementById("screen-loader").style.display = "flex";
+    document.getElementById("loader-text").innerText = "Chargement de ton espace personnel…";
+
+    try {
+        var dbRes = await fetch("/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "studentDashboard",
+                userId: AppState.studentId
+            })
+        });
+
+        if (!dbRes.ok) {
+            var dbErrData = await dbRes.json();
+            throw new Error(dbErrData.error || "Impossible de charger les données du dashboard.");
+        }
+
+        var dbData = await dbRes.json();
+        
+        // Remplir les données de l'interface
+        document.getElementById("db-student-name").textContent = AppState.studentName.split(" ")[0];
+        
+        // Rendre le classement de la classe
+        var rankList = document.getElementById("db-ranking-list");
+        rankList.innerHTML = "";
+        
+        dbData.ranking.forEach(function(item, idx) {
+            var row = document.createElement("div");
+            row.className = "leaderboard-row";
+            if (item.id === AppState.studentId) {
+                row.classList.add("user-row");
+                row.style.animation = "pulse 2s infinite";
+            }
+            
+            var trophy = "";
+            if (idx === 0) trophy = "🥇 ";
+            else if (idx === 1) trophy = "🥈 ";
+            else if (idx === 2) trophy = "🥉 ";
+
+            var simBadge = "";
+            var isSimulated = (item.firstname.toLowerCase().indexOf("test") !== -1) || (item.id === "d519cbff-c9ee-43d9-a893-c4d4f4383414");
+            if (isSimulated) {
+                simBadge = `<span class="badge badge-partial" style="font-size:0.65rem; padding:0.1rem 0.3rem; margin-left:0.5rem; vertical-align:middle; text-transform:none;">Simulateur</span>`;
+            }
+
+            row.innerHTML = `
+                <div class="leaderboard-rank">${trophy}#${idx + 1}</div>
+                <div class="leaderboard-name" style="text-transform: capitalize;">${escapeHtml(item.firstname)} ${escapeHtml(item.lastnameLetter)}${simBadge}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted); margin-right:1rem;">${item.sessionsCount} session(s)</div>
+                <div class="leaderboard-score">${item.maxScore} pts</div>
+            `;
+            rankList.appendChild(row);
+        });
+
+        if (dbData.ranking.length === 0) {
+            rankList.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:1rem;">Aucun score dans la classe pour le moment.</p>`;
+        }
+
+        // Rendre les jauges de vigilance (uniquement visuel animé)
+        var vigilanceBars = document.getElementById("db-vigilance-bars");
+        vigilanceBars.innerHTML = "";
+        
+        var labelsMapping = {
+            rigueur_formulation: "Rigueur de formulation",
+            verbe_etat: "Verbes d'État interdits",
+            solution_physique: "Solution Physique au lieu d'action",
+            manque_eme: "Complément EME Manquant",
+            hors_cadre_usage: "Hors-Cadre (Coûts/Éco/ACV)",
+            hors_sujet: "Fonction Hors Sujet / Impossible",
+            autre_incorrect: "Autres erreurs"
+        };
+        
+        var colorsMapping = {
+            rigueur_formulation: "linear-gradient(90deg, #f43f5e, #ec4899)",
+            verbe_etat: "linear-gradient(90deg, #ef4444, #f97316)",
+            solution_physique: "linear-gradient(90deg, #f59e0b, #eab308)",
+            manque_eme: "linear-gradient(90deg, #3b82f6, #06b6d4)",
+            hors_cadre_usage: "linear-gradient(90deg, #a855f7, #6366f1)",
+            hors_sujet: "linear-gradient(90deg, #64748b, #475569)",
+            autre_incorrect: "linear-gradient(90deg, #94a3b8, #cbd5e1)"
+        };
+
+        var totalLoggedErrors = Object.values(dbData.errorsSummary).reduce((a, b) => a + b, 0) || 1;
+        
+        var sortedErrorKeys = Object.keys(dbData.errorsSummary).sort(function(a, b) {
+            return dbData.errorsSummary[b] - dbData.errorsSummary[a];
+        });
+
+        var hasErrors = Object.values(dbData.errorsSummary).some(v => v > 0);
+
+        if (hasErrors) {
+            sortedErrorKeys.forEach(function(key) {
+                var errCount = dbData.errorsSummary[key];
+                if (errCount === 0) return;
+                
+                var pct = Math.round((errCount / totalLoggedErrors) * 100);
+                
+                var container = document.createElement("div");
+                container.style.display = "flex";
+                container.style.flexDirection = "column";
+                container.style.gap = "0.25rem";
+                
+                container.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#cbd5e1;">
+                        <span style="font-weight:600;">${labelsMapping[key]}</span>
+                        <span style="font-weight:700; color:var(--error);">${errCount} (${pct}%)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06); height:10px; border-radius:99px; overflow:hidden; border:1px solid rgba(255,255,255,0.04);">
+                        <div style="background:${colorsMapping[key]}; width:0%; height:100%; border-radius:99px; transition:width 1.5s cubic-bezier(0.16,1,0.3,1);" class="db-error-fill" data-width="${pct}%"></div>
+                    </div>
+                `;
+                vigilanceBars.appendChild(container);
+            });
+        } else {
+            vigilanceBars.innerHTML = `<div style="text-align:center; color:var(--success); font-weight:700; padding:1.5rem; background:rgba(16,185,129,0.08); border:1px dashed rgba(16,185,129,0.3); border-radius:12px;">🎉 Aucun point de vigilance ! Excellente rigueur historique.</div>`;
+        }
+
+        // Rendre l'historique de progression
+        var historyTimeline = document.getElementById("db-history-timeline");
+        historyTimeline.innerHTML = "";
+        
+        dbData.history.forEach(function(sess, sIdx) {
+            var dateStr = "";
+            if (sess.date) {
+                dateStr = " (" + new Date(sess.date).toLocaleDateString("fr-FR", {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'}) + ")";
+            }
+            var levelText = sess.level === "avance" ? "Avancé" : "Débutant";
+            var levelBadgeColor = sess.level === "avance" ? "rgba(79,70,229,0.2)" : "rgba(14,165,233,0.2)";
+            var levelTextColor = sess.level === "avance" ? "#a5b4fc" : "#7dd3fc";
+
+            var item = document.createElement("div");
+            item.style.display = "flex";
+            item.style.justifyContent = "space-between";
+            item.style.alignItems = "center";
+            item.style.background = "rgba(255,255,255,0.02)";
+            item.style.border = "1px solid rgba(255,255,255,0.05)";
+            item.style.padding = "0.75rem 1rem";
+            item.style.borderRadius = "12px";
+            item.style.fontSize = "0.9rem";
+            item.style.transition = "transform 0.2s";
+            item.addEventListener("mouseover", function() { item.style.transform = "translateX(4px)"; });
+            item.addEventListener("mouseout", function() { item.style.transform = "translateX(0)"; });
+
+            item.innerHTML = `
+                <div>
+                    <span style="font-weight:700; color:white;">Session ${sIdx + 1}</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted); margin-left:0.5rem;">${dateStr}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <span style="background:${levelBadgeColor}; color:${levelTextColor}; font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px; text-transform:uppercase;">${levelText}</span>
+                    <span style="color:var(--success); font-weight:700;">${sess.percentageCorrect}% Correctes</span>
+                    <span style="font-weight:800; color:white; min-width:60px; text-align:right;">${sess.score} pts</span>
+                </div>
+            `;
+            historyTimeline.appendChild(item);
+        });
+
+        if (dbData.history.length === 0) {
+            historyTimeline.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:1rem;">Aucune session enregistrée pour le moment. C'est le moment de commencer !</p>`;
+        }
+
+        // Afficher l'écran Dashboard
+        document.getElementById("screen-loader").style.display = "none";
+        document.getElementById("btn-start").disabled = false;
+        document.getElementById("screen-student-dashboard").classList.remove("hidden");
+        
+        // Déclencher les animations des barres d'erreur
+        setTimeout(function() {
+            var fills = document.querySelectorAll(".db-error-fill");
+            fills.forEach(function(f) {
+                f.style.width = f.dataset.width;
+            });
+        }, 100);
+
+    } catch (e) {
+        document.getElementById("screen-loader").style.display = "none";
+        document.getElementById("btn-start").disabled = false;
+        document.getElementById("screen-welcome").classList.remove("hidden");
+        document.getElementById("welcome-error").innerText = "Erreur Dashboard : " + e.message;
+    }
+}
+});
+
+// Lancer le TP depuis le dashboard étudiant
+document.getElementById("btn-start-tp").addEventListener("click", function() {
+    document.getElementById("screen-student-dashboard").classList.add("hidden");
+    document.getElementById("screen-loader").style.display = "flex";
+    document.getElementById("loader-text").innerText = "Génération de la session de TP…";
+
+    // Générer 10 emballages uniques pour cette session (Fisher-Yates)
+    AppState.shuffledCatalog = PACKAGING_CATALOG.slice();
+    for (var i = AppState.shuffledCatalog.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = AppState.shuffledCatalog[i];
+        AppState.shuffledCatalog[i] = AppState.shuffledCatalog[j];
+        AppState.shuffledCatalog[j] = tmp;
+    }
+    AppState.sessionPacks = AppState.shuffledCatalog.slice(0, MAX_SESSION_PACKS);
+    AppState.sessionIndex = 0;
+    AppState.sessionScore = 0;
+    AppState.sessionHistory = [];
+    saveSessionState();
+
+    document.getElementById("screen-loader").style.display = "none";
+    loadPackExercise();
+});
+
+// Déconnexion
+document.getElementById("btn-logout").addEventListener("click", function() {
+    try {
+        sessionStorage.removeItem("esepac_current_session");
+    } catch(e) {}
+    document.getElementById("screen-student-dashboard").classList.add("hidden");
+    document.getElementById("screen-welcome").classList.remove("hidden");
+    document.getElementById("student-password").value = "";
+});
+
+// ================================================================
+// CHARGEMENT DE L'EXERCICE
+// ================================================================
+function loadPackExercise() {
+    AppState.isLoading = false;
+    document.getElementById("feedback-area").classList.add("hidden");
+    document.getElementById("validation-msg").textContent = "";
+    document.getElementById("validation-msg").classList.remove("visible");
+    btnSubmit.classList.remove("hidden");
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = "Soumettre à l'Expert IA";
+    
+    // Configurer le pack courant
+    AppState.currentPackaging = AppState.sessionPacks[AppState.sessionIndex];
+    document.getElementById("packaging-context").textContent = AppState.currentPackaging;
+    
+    // En-têtes de progression
+    document.getElementById("sess-num").textContent = AppState.sessionIndex + 1;
+    document.getElementById("sess-progress").style.width = ((AppState.sessionIndex + 1) / MAX_SESSION_PACKS * 100) + "%";
+    document.getElementById("sess-score").textContent = AppState.sessionScore;
+
+    // Rendre les règles d'évaluation visibles par niveau
+    var rulesBox = document.getElementById("rules-box");
+    var helpBox = document.getElementById("help-box");
+    if (AppState.level === "debutant") {
+        if (helpBox) helpBox.classList.remove("hidden");
+        rulesBox.innerHTML = `
+            <strong>Règles de l'art (Débutant) :</strong>
+            <ul>
+                <li><strong>La Formule :</strong> Verbe d'action à l'infinitif + Objet + Complément (EME).</li>
+                <li><strong>Exclusion :</strong> N'utilise pas de verbes d'état (<i>être, avoir, paraître, sembler, devenir</i>).</li>
+                <li><strong>Abstraction :</strong> Exprime l'action, pas la solution physique (ex: pas de mot *bouchon* ou *carton*).</li>
+                <li><strong>Formulation positive :</strong> Rédige toujours sous forme affirmative (pas de <i>ne pas...</i>).</li>
+                <li><strong>Périmètre :</strong> Pas de critères de coût ou de fin de vie/recyclage (gérés dans d'autres matrices).</li>
+                <li><strong>Cycle d'usage :</strong> Rédige entre 3 et 8 fonctions d'usage pour ce pack.</li>
+            </ul>
+        `;
+    } else {
+        if (helpBox) helpBox.classList.add("hidden");
+        rulesBox.innerHTML = `
+            <strong>Règles de l'art (Avancé) :</strong>
+            <ul>
+                <li><strong>La Formule :</strong> Verbe d'action à l'infinitif + Objet + Complément (EME) obligatoire.</li>
+                <li><strong>Formulation active :</strong> Pas de tournure négative (ex: pas de <i>ne pas fuir</i>, préfère <i>empêcher le produit de s'échapper</i>).</li>
+                <li><strong>Périmètre :</strong> Pas d'aspects écologiques (recyclage, ACV) ou financiers (optimisation des coûts).</li>
+                <li><strong>Guidage par Perspectives :</strong> Pense à l'ensemble du cycle de vie de l'emballage :
+                    <ul>
+                        <li>Conservation &amp; Stockage (barrière, protection physique).</li>
+                        <li>Logistique &amp; Flux (palettisation, regroupement).</li>
+                        <li>Usage &amp; Ergonomie (préhension, dosage).</li>
+                        <li>Communication &amp; Règlementation (identité, marquage légal).</li>
+                    </ul>
+                </li>
+            </ul>
+        `;
+    }
+
+    // Réinitialiser les champs de saisie
+    resetSaisieFields();
+    document.getElementById("screen-exercise").classList.remove("hidden");
+}
+
+function resetSaisieFields() {
+    functionsContainer.innerHTML = "";
+    AppState.functionFieldsCount = 0;
+    for (var i = 0; i < MIN_FIELDS; i++) {
+        addNewField();
+    }
+}
+
+function addNewField() {
+    if (AppState.functionFieldsCount >= MAX_FIELDS) return;
+    AppState.functionFieldsCount++;
+    var num = AppState.functionFieldsCount;
+    
+    var row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.flexDirection = "column";
+    row.style.width = "100%";
+    row.style.marginBottom = "0.75rem";
+    
+    var inputRow = document.createElement("div");
+    inputRow.className = "function-row";
+    inputRow.style.animationDelay = (num * 0.05) + "s";
+    
+    var numDiv = document.createElement("div");
+    numDiv.className = "function-number";
+    numDiv.textContent = num + ".";
+    
+    var input = document.createElement("input");
+    input.type = "text";
+    input.className = "func-input";
+    input.id = "func-" + num;
+    input.autocomplete = "off";
+    input.placeholder = "Ex : Protéger le produit contre...";
+    
+    // Validation en temps réel (uniquement en mode Débutant)
+    input.addEventListener("input", function() {
+        validateFieldRealtime(input, num);
+    });
+
+    inputRow.appendChild(numDiv);
+    inputRow.appendChild(input);
+    
+    if (num > MIN_FIELDS) {
+        var delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-delete";
+        delBtn.textContent = "🗑️";
+        delBtn.addEventListener("click", function() {
+            deleteSaisieField(row);
+        });
+        inputRow.appendChild(delBtn);
+    }
+    
+    var hintDiv = document.createElement("div");
+    hintDiv.className = "func-feedback-hint";
+    hintDiv.id = "func-hint-" + num;
+    
+    row.appendChild(inputRow);
+    row.appendChild(hintDiv);
+    functionsContainer.appendChild(row);
+    
+    updateAddButtonState();
+}
+
+function deleteSaisieField(rowToRemove) {
+    functionsContainer.removeChild(rowToRemove);
+    AppState.functionFieldsCount--;
+    
+    var rows = functionsContainer.querySelectorAll(".function-row");
+    var hints = functionsContainer.querySelectorAll(".func-feedback-hint");
+    
+    for (var i = 0; i < rows.length; i++) {
+        var newNum = i + 1;
+        rows[i].querySelector(".function-number").textContent = newNum + ".";
+        var inp = rows[i].querySelector(".func-input");
+        inp.id = "func-" + newNum;
+        hints[i].id = "func-hint-" + newNum;
+        
+        var delBtn = rows[i].querySelector(".btn-delete");
+        if (newNum > MIN_FIELDS && !delBtn) {
+            var newDel = document.createElement("button");
+            newDel.type = "button";
+            newDel.className = "btn-delete";
+            newDel.textContent = "🗑️";
+            (function(r) { newDel.addEventListener("click", function() { deleteSaisieField(r); }); })(rows[i].parentNode);
+            rows[i].appendChild(newDel);
+        } else if (newNum <= MIN_FIELDS && delBtn) {
+            delBtn.remove();
+        }
+    }
+    updateAddButtonState();
+}
+
+function updateAddButtonState() {
+    btnAddFunction.textContent = `+ Ajouter une fonction (${AppState.functionFieldsCount}/${MAX_FIELDS})`;
+    btnAddFunction.style.display = AppState.functionFieldsCount >= MAX_FIELDS ? "none" : "flex";
+}
+
+document.getElementById("btn-add-function").addEventListener("click", addNewField);
+
+// ================================================================
+// VALIDATION EN TEMPS RÉEL (CLIENT-SIDE)
+// ================================================================
+function validateFieldRealtime(input, num) {
+    var val = input.value.trim().toLowerCase();
+    var hintEl = document.getElementById("func-hint-" + num);
+    if (!hintEl) return;
+    
+    hintEl.className = "func-feedback-hint";
+    hintEl.innerHTML = "";
+    
+    if (!val) return;
+    
+    // On retire les accents pour la comparaison
+    var valNoAccents = val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    // 1. Verbes d'état (sans accents)
+    var stateVerbs = ["etre", "avoir", "paraitre", "sembler", "devenir", "est", "a", "sont", "ont"];
+    var firstWord = valNoAccents.split(/\s+/)[0];
+    if (stateVerbs.indexOf(firstWord) !== -1) {
+        hintEl.className = "func-feedback-hint error";
+        hintEl.innerHTML = "❌ Verbe d'état interdit en Analyse Fonctionnelle (être/avoir...). Utilise un verbe d'action.";
+        return;
+    }
+    
+    // 2. Mots de solution physique (sans accents)
+    var physicalBlacklist = ["bouchon", "film", "carton", "bouteille", "capsule", "boite", "sachet", "plastique", "verre", "metal", "operculage"];
+    for (var i = 0; i < physicalBlacklist.length; i++) {
+        if (valNoAccents.indexOf(physicalBlacklist[i]) !== -1) {
+            hintEl.className = "func-feedback-hint warning";
+            hintEl.innerHTML = "⚠️ Tu mentionnes un élément physique d'emballage. Pense à t'abstraire de la solution.";
+            return;
+        }
+    }
+}
+
+// ================================================================
+// APPEL API ET SOUMISSION
+// ================================================================
+async function callEvaluationAPI(packaging, answers) {
+    if (AppState.serverMode) {
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, FETCH_TIMEOUT_MS);
+        try {
+            var res = await fetch("/api/evaluate", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ packaging: packaging, answers: answers, level: AppState.level }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (!res.ok) {
+                var errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || `Erreur serveur : ${res.status}`);
+            }
+            return await res.json();
+        } catch(e) {
+            if (e.name === 'AbortError') throw new Error("Le serveur API a mis trop de temps à répondre.");
+            throw e;
+        }
+    } else {
+        // Exécuter l'appel client direct (clé locale)
+        return await callGeminiDirect(packaging, answers);
+    }
+}
+async function callGeminiDirect(packaging, answers) {
+    var answersText = answers.map((ans, i) => `${i + 1}. ${ans}`).join('\n');
+    var levelRules = "";
+    if (AppState.level === 'debutant') {
+        levelRules = `Le niveau actuel de l'étudiant est DÉBUTANT. L'étudiant a accès aux rappels de règles simplifiées.`;
+    } else {
+        levelRules = `Le niveau actuel de l'étudiant est AVANCÉ. L'étudiant est guidé par les perspectives (Conservation, Logistique, Usage, Information).`;
+    }
+
+    var systemInstruction = `Tu es un professeur expert en Analyse Fonctionnelle pour des étudiants en Master Packaging à l'ESEPAC.
+IMPORTANT : tutoie TOUJOURS l'étudiant. Ne le vouvoie jamais.
+
+Règles de notation selon le niveau de l'étudiant :
+
+NIVEAU DÉBUTANT :
+- Indulgence sur l'omission de l'objet : Si l'élève écrit une fonction logique avec verbe d'action + EME mais sans l'objet direct (ex: "Protéger des chocs" au lieu de "Protéger le contenu des chocs"), note-la CORRECTE. Dans le commentaire ("comm"), suggère simplement de préciser l'objet.
+- Adverbes subjectifs (bien, facilement, efficacement...) : Note la fonction comme CORRECTE, mais ajoute dans "comm" une remarque pédagogique indiquant qu'il faut éviter ces termes subjectifs pour être plus rigoureux.
+- Verbe faible "Permettre de..." : Note la fonction comme CORRECTE, mais suggère dans "comm" de privilégier un verbe d'action direct si possible.
+- Écarts méthodologiques de formulation : Pour les écarts décrits ci-dessous (Fonctions valises, Verbes d'action faibles, Marketing subjectif, Action subie), note la fonction comme PARTIELLEMENT CORRECTE. Explique le problème dans "comm" et propose une reformulation dans "sugg".
+
+NIVEAU AVANCÉ :
+- Rigueur académique sur l'objet direct : L'absence de l'objet direct (ex: "Protéger des chocs") doit être notée PARTIELLEMENT CORRECTE.
+- Adverbes subjectifs (bien, facilement, efficacement...) : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que l'utilisation de termes subjectifs nuit à la rigueur technique du cahier des charges.
+- Verbe faible "Permettre de..." : Note la fonction comme PARTIELLEMENT CORRECTE (sauf s'il s'agit d'exprimer une fonction d'usage utilisateur indispensable comme "Permettre à l'utilisateur de..."). Explique dans "comm" qu'il faut utiliser un verbe d'action direct.
+- Écarts méthodologiques de formulation : Pour les écarts décrits ci-dessous (Fonctions valises, Verbes d'action faibles, Marketing subjectif, Action subie), note la fonction comme INCORRECTE.
+
+Définition des écarts méthodologiques de formulation :
+1. Fonctions "Valises" : Fonctions trop générales sans cible/agresseur extérieur précis (ex: "Protéger le produit" au lieu de "Protéger le produit contre la lumière").
+2. Verbes d'action faibles de nominalisation : Verbes généraux servant de support à un nom (ex: "Assurer la conservation" au lieu de "Conserver" ou "Faire barrière", "Garantir l'étanchéité" au lieu de "Empêcher le produit de s'échapper").
+3. Marketing subjectif : Utilisation de verbes d'action subjectifs ou psychologiques (ex: "Séduire le client", "Donner envie d'acheter" au lieu de "Valoriser l'image de marque").
+4. Action subie vs action active : Formulations passives ou décrivant un mouvement interne mécanique subi par l'emballage (ex: "Être empilé" au lieu de "Supporter l'empilement", "Passer dans la machine" au lieu de "S'adapter au système de guidage").
+
+Règles communes (Débutant & Avancé) :
+- TOUJOURS COMPTER FAUX LES TOURNURES NÉGATIVES : Les propositions formulées avec une négation (ex: "Ne pas laisser passer la lumière", "Ne pas fuir") doivent être notées impérativement comme INCORRECTE pour tous les niveaux. Explique dans "comm" qu'une fonction doit toujours s'exprimer de manière positive et active, et suggère une formulation affirmative (ex: "Faire barrière à la lumière", "Empêcher le produit de s'échapper").
+- SUJET IMPLICITE DE L'EMBALLAGE (Règle d'or) : Il est STRICTEMENT INTERDIT d'exiger de l'étudiant qu'il mentionne explicitement le mot "emballage" ou "bouteille" ou "système" (ex: NE PAS suggérer "Permettre à l'emballage de supporter..." au lieu de "Supporter..."). Le sujet qui réalise la fonction est implicitement l'emballage. Des formulations comme "Supporter un remplissage à chaud" ou "Contenir le lait" sont entièrement correctes sur ce point.
+- EXCEPTION SUR LES COMPOSANTS PHYSIQUES : En règle générale, citer un composant physique de l'emballage lui-même (bouchon, carton, film, opercule...) ou un matériau (PET, verre...) ou un procédé est interdit et noté INCORRECTE. EXCEPTION UNIQUE : Si le nom de l'emballage à analyser (fourni dans le sujet, ex: "Pot de yaourt en polystyrène avec opercule aluminium") contient explicitement un composant ou un matériau, l'étudiant est autorisé à y faire référence dans ses fonctions (ex: citer l'opercule ou le pot).
+- FONCTION DE SERVICE (vs Action interne) : La fonction doit décrire un service rendu à un élément du milieu extérieur (utilisateur, produit contenu, logistique) et non une action mécanique interne au système.
+- CORRECTE : le fond est logique ET la forme respecte la structure active canonique (verbe d'action à l'infinitif + objet + complément EME).
+- INDULGENCE SUR L'ORTHOGRAPHE ET LA GRAMMAIRE : Sois impérativement indulgent avec les fautes d'orthographe mineures, de grammaire ou les oublis légers d'articles (ex: "Rendre visible contenu au consommateur" au lieu de "Rendre visible le contenu au consommateur"). Si le sens technique général reste parfaitement compréhensible, note la fonction comme CORRECTE. Propose simplement la correction linguistique propre dans le champ suggestion ("sugg") et mentionne-le gentiment dans "comm" sans dégrader la note.
+- PARTIELLEMENT CORRECTE : le fond est bon mais la forme pose problème (hors fautes d'orthographe/articles légers acceptés ci-dessus), ou inversement.
+- INCORRECTE : fond aberrant OU verbe seul sans complément EME OU proposition contenant une solution technique concrète (hors cas de l'exception ci-dessus) OU proposition concernant l'environnement, le recyclage, l'économie ou la fin de vie.
+ATTENTION : citer le PRODUIT CONTENU (ex: le gruyère, le lait, le riz, les haricots, le parfum, etc.) ou le terme générique « le contenu » est ENTIÈREMENT CORRECT et attendu.
+- Règle des impossibilités physiques ou hors sujet : Si l'étudiant propose une fonction techniquement impossible pour l'emballage donné (ex: "Permettre de voir le contenu" pour une canette en alu opaque) ou complètement hors sujet, note-la INCORRECTE. Explique la contrainte physique ou le problème de pertinence dans "comm". Dans "sugg", mets "Non applicable" ou une reformulation théoriquement correcte.
+- Règle des verbes d'état : L'usage des verbes d'état principaux (être, avoir, paraître, sembler, devenir) dans les propositions de l'étudiant doit impérativement être noté comme INCORRECTE.
+- Règle Environnement, Fin de vie & Économie : Si l'étudiant parle de fin de vie, de recyclage, de tri, ou cherche à optimiser le coût ou le poids/matière par souci économique ou environnemental (ex: "Minimiser le coût de fabrication", "Réduire le poids de plastique pour la planète"), note-le impérativement comme INCORRECTE. Explique clairement dans "comm" : "Dans un projet packaging global, les aspects fonctionnels, économiques et environnementaux sont traités séparément dans trois matrices distinctes (fonctionnelle, économique et environnementale) puis confrontés. Injecter des critères économiques ou environnementaux dans l'analyse fonctionnelle d'usage fausserait l'analyse globale."
+- Champ suggestion ("sugg") : Remplis ce champ si le statut est PARTIELLEMENT CORRECTE ou INCORRECTE, OU s'il y a des corrections orthographiques/grammaticales sur une fonction CORRECTE. Si la fonction est parfaitement CORRECTE sans aucune faute, laisse "sugg" vide (chaîne vide ""). Il doit contenir UNIQUEMENT la proposition de reformulation correcte de la fonction, et JAMAIS de conseils méthodologiques ou de remarques (ces derniers vont exclusivement dans le champ "comm").
+- Conseiller : Proposer 2 à 3 fonctions pertinentes manquantes dans "conseils" (hors recyclage/fin de vie/critères économiques).
+- Champ "error_type" : Si une fonction est CORRECTE malgré de légères fautes d'orthographe ou d'article, mets "none".
+
+Catégorisation du type d'erreur ("error_type") :
+Pour chaque fonction, attribue obligatoirement l'une des valeurs suivantes pour "error_type" :
+- "none" : Si la fonction est CORRECTE (y compris avec fautes légères acceptées).
+- "rigueur_formulation" : Si la fonction ne commence pas par un verbe d'action à l'infinitif (ou utilise une tournure négative, ou un verbe faible type "Permettre de" au niveau avancé, ou des adverbes subjectifs). Note : les fautes d'orthographe ou d'articles légères ne doivent pas être qualifiées d'erreur de rigueur si le sens est bon.
+- "verbe_etat" : Si la fonction contient un verbe d'état principal (être, avoir, paraître, sembler, devenir...).
+- "solution_physique" : Si la fonction cite explicitement un composant de l'emballage (hors exception du sujet), un matériau ou un procédé.
+- "manque_eme" : Si la fonction omet le complément de milieu extérieur (EME) ou l'objet direct (ou si c'est une fonction valise trop générale).
+- "hors_cadre_usage" : Si la fonction mentionne le tri, recyclage, fin de vie, ACV, éco-conception ou des aspects d'optimisation économique/poids de matière.
+- "hors_sujet" : Si la fonction est techniquement irréalisable/incompatible avec le produit ou totalement déconnectée du sujet (ou si c'est une action mécanique ou passive subie by le système).
+- "autre_incorrect" : Toute autre erreur de sens ou de formulation n'entrant pas dans les catégories précédentes.
+
+CONSIGNE DE CONCISION STRICTE : Fais des commentaires d'évaluation très courts, d'au maximum 1 à 2 phrases par fonction. Va droit au but.`;
+
+    var prompt = `Sujet : ${packaging}
+Niveau de l'exercice : ${AppState.level === 'debutant' ? 'Débutant' : 'Avancé'}
+${levelRules}
+
+Fonctions formulées par l'étudiant :
+${answersText}`;
+
+    var responseSchema = {
+        type: "OBJECT",
+        properties: {
+            evals: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        func: { type: "STRING" },
+                        status: { type: "STRING", enum: ["CORRECTE", "PARTIELLEMENT CORRECTE", "INCORRECTE"] },
+                        error_type: { 
+                            type: "STRING", 
+                            enum: ["none", "rigueur_formulation", "verbe_etat", "solution_physique", "manque_eme", "hors_cadre_usage", "hors_sujet", "autre_incorrect"] 
+                        },
+                        comm: { type: "STRING" },
+                        sugg: { type: "STRING" }
+                    },
+                    required: ["func", "status", "error_type", "comm", "sugg"]
+                }
+            },
+            bilan: { type: "STRING" },
+            conseils: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            }
+        },
+        required: ["evals", "bilan", "conseils"]
+    };
+
+    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=" + AppState.apiKey;
+    var res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            systemInstruction: {
+                parts: [{ text: systemInstruction }]
+            },
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.2,
+                responseMimeType: "application/json",
+                responseSchema: responseSchema
+            }
+        })
+    });
+
+    if (!res.ok) throw new Error("Clé API invalide ou limite atteinte.");
+    var data = await res.json();
+    var rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    var cleanedText = rawText.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
+    return JSON.parse(cleanedText);
+}
+
+// Soumission du formulaire
+var btnSubmit = document.getElementById("btn-submit");
+btnSubmit.addEventListener("click", async function() {
+    if (AppState.isLoading) return;
+
+    var inputs = functionsContainer.querySelectorAll(".func-input");
+    var filled = [];
+    var hasDuplicates = false;
+    var seen = {};
+
+    var hasInvalid = false;
+    for (var i = 0; i < inputs.length; i++) {
+        inputs[i].classList.remove("input-error");
+        var val = inputs[i].value.trim();
+        if (val) {
+            // Validation basique (longueur >= 5, contient au moins une lettre, pas uniquement des symboles/chiffres)
+            var isValid = (val.length >= 5) && /[a-zA-Zà-üÀ-Ü]/.test(val) && !/^[0-9\s\-_.,;!?:\/\\\(\)\*#\+]+$/.test(val);
+            if (!isValid) {
+                inputs[i].classList.add("input-error");
+                hasInvalid = true;
+            }
+
+            var key = val.toLowerCase();
+            if (seen[key]) {
+                inputs[i].classList.add("input-error");
+                seen[key].classList.add("input-error");
+                hasDuplicates = true;
+            } else {
+                seen[key] = inputs[i];
+            }
+            filled.push(val);
+        }
+    }
+
+    var validationEl = document.getElementById("validation-msg");
+    validationEl.textContent = "";
+    validationEl.classList.remove("visible");
+
+    if (filled.length < MIN_FIELDS) {
+        validationEl.textContent = "⚠ Veuillez formuler au minimum " + MIN_FIELDS + " fonctions pour poursuivre.";
+        validationEl.classList.add("visible");
+        return;
+    }
+
+    if (hasInvalid) {
+        validationEl.textContent = "⚠ Certaines propositions sont trop courtes, vides ou ne décrivent pas de fonction (surlignées en rouge).";
+        validationEl.classList.add("visible");
+        return;
+    }
+
+    if (hasDuplicates) {
+        validationEl.textContent = "⚠ Des fonctions identiques ont été détectées (surlignées en rouge).";
+        validationEl.classList.add("visible");
+        return;
+    }
+
+    // Lancer le chargement
+    AppState.isLoading = true;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Analyse en cours…";
+    document.getElementById("btn-add-function").style.display = "none";
+    var deleteBtns = document.querySelectorAll(".btn-delete");
+    for (var d = 0; d < deleteBtns.length; d++) {
+        deleteBtns[d].style.display = "none";
+    }
+    
+    // Configurer et lancer les messages de progression
+    var loaderTextAnalysis = document.getElementById("loader-text-analysis");
+    var progressMessages = [
+        "Envoi de tes propositions à l'Expert IA…",
+        "Analyse de la structure grammaticale et des verbes d'action…",
+        "Vérification de l'exclusion des solutions physiques…",
+        "Contrôle de l'absence de verbes d'état…",
+        "Rédaction des suggestions de correction pédagogiques…",
+        "Finalisation de la synthèse et du score de session…"
+    ];
+    var msgIndex = 0;
+    if (loaderTextAnalysis) {
+        loaderTextAnalysis.textContent = progressMessages[0];
+    }
+    var progressInterval = setInterval(function() {
+        if (loaderTextAnalysis) {
+            msgIndex = (msgIndex + 1) % progressMessages.length;
+            loaderTextAnalysis.textContent = progressMessages[msgIndex];
+        }
+    }, 2500);
+
+    document.getElementById("loading-indicator").style.display = "flex";
+
+    try {
+        var evaluationData = await callEvaluationAPI(AppState.currentPackaging, filled);
+        clearInterval(progressInterval);
+        renderFeedback(filled, evaluationData);
+    } catch(err) {
+        clearInterval(progressInterval);
+        document.getElementById("loading-indicator").style.display = "none";
+        validationEl.textContent = "❌ Erreur : " + err.message;
+        validationEl.classList.add("visible");
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "Soumettre à l'Expert IA";
+        document.getElementById("btn-add-function").style.display = "flex";
+        var deleteBtns = document.querySelectorAll(".btn-delete");
+        for (var d = 0; d < deleteBtns.length; d++) {
+            deleteBtns[d].style.display = "inline-block";
+        }
+    } finally {
+        clearInterval(progressInterval);
+        AppState.isLoading = false;
+    }
+});
+
+// ================================================================
+// RENDU DE L'ÉVALUATION ET SCORE
+// ================================================================
+function renderFeedback(studentAnswers, evaluationData) {
+    document.getElementById("loading-indicator").style.display = "none";
+    
+    // Calcul et attribution des points
+    var correctCount = 0;
+    var packagingScore = 10; // +10 points pour avoir démarré le cas
+    
+    var isAvance = (AppState.level === "avance");
+    var ptsCorrect = isAvance ? 30 : 20;
+    var ptsPartial = isAvance ? 15 : 10;
+    var malusCritique = isAvance ? -10 : -5;
+
+    var comparatifContainer = document.getElementById("feedback-comparatif");
+    comparatifContainer.innerHTML = "";
+    
+    var evals = [];
+    if (evaluationData) {
+        evals = evaluationData.evaluations || evaluationData.evals;
+    }
+    if (!evals || !Array.isArray(evals)) {
+        console.warn("Champs d'évaluation introuvables ou invalides dans la réponse", evaluationData);
+        evals = [];
+    }
+    
+    evals.forEach(function(item, index) {
+        if (!item) return;
+        var row = document.createElement("div");
+        row.className = "comparatif-row";
+        
+        var statusVal = item.status || item.statut || "INCORRECTE";
+        var funcVal = item.func || item.fonction || "";
+        var commVal = item.comm || item.commentaire || "";
+        var suggVal = item.sugg || item.suggestion || "";
+        var errType = item.error_type || item.errorType || "";
+        
+        var isCorrect = statusVal === "CORRECTE";
+        if (isCorrect) {
+            correctCount++;
+            packagingScore += ptsCorrect;
+        } else if (statusVal === "PARTIELLEMENT CORRECTE") {
+            packagingScore += ptsPartial;
+        } else {
+            // Malus si l'erreur est de type critique (tournure négative sous rigueur_formulation, verbe_etat, hors_cadre_usage)
+            var hasNegation = (commVal.toLowerCase().indexOf("négation") !== -1 || commVal.toLowerCase().indexOf("ne pas") !== -1);
+            if (errType === "verbe_etat" || errType === "hors_cadre_usage" || (errType === "rigueur_formulation" && hasNegation)) {
+                packagingScore += malusCritique;
+            }
+        }
+        
+        var badgeClass = statusVal === "CORRECTE" ? "badge-correct" : (statusVal === "PARTIELLEMENT CORRECTE" ? "badge-partial" : "badge-incorrect");
+        var badgeText = statusVal === "CORRECTE" ? "✓ Correcte" : (statusVal === "PARTIELLEMENT CORRECTE" ? "~ Partielle" : "✗ Incorrecte");
+        
+        var html = `
+            <div class="comparatif-header">
+                <span class="comparatif-label">Fonction ${index + 1}</span>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="comparatif-body">
+                <div class="comparatif-col">
+                    <div class="comparatif-title">Ta proposition :</div>
+                    <div class="comparatif-text">"${escapeHtml(funcVal)}"</div>
+                </div>
+        `;
+        
+        // Rendre la suggestion UNIQUEMENT si non-correcte
+        if (!isCorrect && suggVal) {
+            html += `
+                <div class="comparatif-col">
+                    <div class="comparatif-title">La suggestion de l'Expert :</div>
+                    <div class="comparatif-text" style="color:var(--primary);font-weight:600;">"${escapeHtml(suggVal)}"</div>
+                </div>
+            `;
+        }
+        
+        html += `</div>`; // fin body
+        html += `<div class="comparatif-comment">${escapeHtml(commVal)}</div>`;
+        
+        row.innerHTML = html;
+        comparatifContainer.appendChild(row);
+    });
+    
+    // Bonus de performance (au moins 70% de réussite sur ce produit)
+    var bonusContainer = document.getElementById("bonus-container");
+    bonusContainer.innerHTML = "";
+    var successRatio = evals.length > 0 ? (correctCount / evals.length) : 0;
+    if (evals.length > 0 && successRatio >= 0.7) {
+        packagingScore += 50;
+        bonusContainer.innerHTML = `
+            <div class="bonus-alert">
+                <span>🎉 BONUS DE PERFORMANCE DÉBLOQUÉ (+50 pts) ! Tu as validé au moins 70% de tes fonctions (${correctCount}/${evals.length} correctes, soit ${Math.round(successRatio * 100)}% de réussite).</span>
+            </div>
+        `;
+    }
+    
+    // Empêcher les scores négatifs sur un produit
+    if (packagingScore < 0) {
+        packagingScore = 0;
+    }
+
+    var bilanVal = "";
+    var conseils = [];
+    if (evaluationData) {
+        bilanVal = evaluationData.bilan || "";
+        conseils = evaluationData.conseils || evaluationData.conseiller || [];
+        if (!Array.isArray(conseils)) {
+            conseils = [];
+        }
+    }
+    
+    // Rendu global
+    var summaryContainer = document.getElementById("feedback-general");
+    summaryContainer.innerHTML = `
+        <div class="feedback-bilan">${escapeHtml(bilanVal)}</div>
+        <div class="feedback-section-title">Pour aller plus loin :</div>
+        <div class="feedback-conseils">
+            <ul>
+                ${conseils.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+    
+    // Mettre à jour l'historique de session
+    AppState.sessionScore += packagingScore;
+    document.getElementById("sess-score").textContent = AppState.sessionScore;
+    
+    AppState.sessionHistory.push({
+        packaging: AppState.currentPackaging,
+        score: packagingScore,
+        correctCount: correctCount,
+        evaluations: evals,
+        bilan: bilanVal,
+        conseils: conseils
+    });
+    saveSessionState();
+
+    // Masquer soumission, afficher feedback
+    btnSubmit.classList.add("hidden");
+    document.getElementById("feedback-area").classList.remove("hidden");
+    
+    // Si nous sommes au 10ème produit, changer le bouton pour finir la session
+    var nextBtn = document.getElementById("btn-next-pack");
+    var finishBtn = document.getElementById("btn-finish-session");
+    
+    if (AppState.sessionIndex >= MAX_SESSION_PACKS - 1) {
+        nextBtn.classList.add("hidden");
+        finishBtn.style.gridColumn = "span 2";
+    } else {
+        nextBtn.classList.remove("hidden");
+        finishBtn.style.gridColumn = "auto";
+    }
+}
+
+// Emballage suivant
+document.getElementById("btn-next-pack").addEventListener("click", function() {
+    AppState.sessionIndex++;
+    saveSessionState();
+    btnSubmit.classList.remove("hidden");
+    loadPackExercise();
+});
+
+// Fin de session
+document.getElementById("btn-finish-session").addEventListener("click", async function() {
+    document.getElementById("screen-exercise").classList.add("hidden");
+    document.getElementById("screen-loader").style.display = "flex";
+    document.getElementById("loader-text").innerText = "Enregistrement de la session…";
+
+    var finalScore = AppState.sessionScore;
+    
+    // Sauvegarder la session dans Supabase
+    try {
+        var res = await fetch("/api/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "saveSession",
+                userId: AppState.studentId,
+                level: AppState.level,
+                score: finalScore,
+                history: AppState.sessionHistory
+            })
+        });
+        
+        if (!res.ok) {
+            console.error("[ESEPAC] Erreur lors de la sauvegarde de la session.");
+        }
+    } catch (e) {
+        console.error("[ESEPAC] Erreur réseau lors de la sauvegarde de la session:", e);
+    }
+
+    try {
+        sessionStorage.removeItem("esepac_current_session");
+    } catch(e) {}
+    document.getElementById("screen-loader").style.display = "none";
+    document.getElementById("screen-bilan").classList.remove("hidden");
+    renderBilanScreen(finalScore);
+});
+
+// ================================================================
+// GESTION DES ONGLETS DE BILAN
+// ================================================================
+function switchBilanTab(tabName) {
+    document.querySelectorAll(".bilan-tab-btn").forEach(btn => btn.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+    
+    if (tabName === 'session') {
+        document.getElementById("tab-btn-session").classList.add("active");
+        document.getElementById("tab-session").classList.add("active");
+    } else if (tabName === 'global') {
+        document.getElementById("tab-btn-global").classList.add("active");
+        document.getElementById("tab-global").classList.add("active");
+    }
+}
+
+// ================================================================
+// RENDU DE L'ÉCRAN DE BILAN FINAL
+// ================================================================
+function renderBilanScreen(finalScore) {
+    // Revenir par défaut sur le premier onglet
+    switchBilanTab('session');
+
+    document.getElementById("bilan-score-value").textContent = finalScore;
+    
+    // Phrase d'encouragement dynamique basée sur le score
+    var summaryTextEl = document.getElementById("bilan-summary-text");
+    if (finalScore >= 1200) {
+        summaryTextEl.textContent = "Exceptionnel ! Tu as brillamment maîtrisé toutes les règles de l'analyse fonctionnelle.";
+    } else if (finalScore >= 800) {
+        summaryTextEl.textContent = "Très bon travail ! Les bases sont solides, continue ainsi.";
+    } else {
+        summaryTextEl.textContent = "Session complétée. Relis bien les suggestions de l'Expert pour parfaire ta syntaxe.";
+    }
+    
+    // Calculer forces et vigilances de session
+    var correctFuncs = [];
+    var incorrectFuncs = [];
+    
+    AppState.sessionHistory.forEach(function(caseItem) {
+        if (caseItem.evaluations && Array.isArray(caseItem.evaluations)) {
+            caseItem.evaluations.forEach(function(ev) {
+                if (!ev) return;
+                var statusVal = ev.status || ev.statut || "INCORRECTE";
+                if (statusVal === "CORRECTE") {
+                    correctFuncs.push(ev);
+                } else {
+                    incorrectFuncs.push(ev);
+                }
+            });
+        }
+    });
+    
+    // Renseigner le taux de réussite de session
+    var totalSessionFuncs = correctFuncs.length + incorrectFuncs.length;
+    var successPct = totalSessionFuncs > 0 ? Math.round((correctFuncs.length / totalSessionFuncs) * 100) : 0;
+    
+    document.getElementById("session-circle-text").textContent = successPct + "%";
+    var circleBar = document.getElementById("session-circle-bar");
+    // Périmètre du cercle = 2 * PI * r (r=45) = 282.74 (arrondi à 283)
+    var strokeOffset = 283 - (283 * successPct / 100);
+    circleBar.style.strokeDasharray = "283";
+    circleBar.style.strokeDashoffset = strokeOffset;
+    
+    // Générer la liste des points forts et points de vigilance
+    var listStrengths = document.getElementById("list-strengths");
+    var listVigilance = document.getElementById("list-vigilance");
+    listStrengths.innerHTML = "";
+    listVigilance.innerHTML = "";
+    
+    // Extraction des forces pédagogiques
+    var strengths = [];
+    
+    if (!hasVerbState) {
+        strengths.push("Bonne maîtrise des verbes d'action (pas de verbes d'état comme être/avoir).");
+    }
+    if (!hasRigueurFormulation) {
+        strengths.push("Respect de la rigueur syntaxique (infinitif d'action, sans adverbes ni négations).");
+    }
+    if (!hasEme) {
+        strengths.push("Bonne caractérisation des interactions avec les milieux extérieurs.");
+    }
+    if (!hasPhysical) {
+        strengths.push("Excellente distinction entre fonction et solution (pas d'éléments physiques cités).");
+    }
+    if (!hasHorsCadreUsage) {
+        strengths.push("Bon ciblage sur les fonctions d'usage de l'emballage (sans critères de coût ou environnement).");
+    }
+    
+    // Taux de réussite global
+    if (successPct >= 80) {
+        strengths.push("Remarquable taux de réussite global sur cette session (" + successPct + "% de fonctions correctes).");
+    } else if (successPct >= 50) {
+        strengths.push("Bon taux de réussite globale sur cette session (" + successPct + "% de fonctions correctes).");
+    }
+    
+    // Un emballage particulièrement bien réussi (>= 70% de réussite)
+    var hasExcellentPack = AppState.sessionHistory.some(function(h) {
+        var total = h.evaluations ? h.evaluations.length : 0;
+        var correct = h.evaluations ? h.evaluations.filter(e => (e.status || e.statut) === "CORRECTE").length : 0;
+        return total > 0 && (correct / total) >= 0.7;
+    });
+    if (hasExcellentPack) {
+        strengths.push("Capacité à valider au moins 70% des fonctions sur un emballage.");
+    }
+    
+    // Sécurité/Fallbacks si moins de 2 forces identifiées
+    if (strengths.length < 2) {
+        strengths.push("Bonne persévérance pour mener à bien l'ensemble de la session d'analyse.");
+    }
+    if (strengths.length < 2) {
+        strengths.push("Structure de base globalement en cours d'acquisition.");
+    }
+    
+    strengths.forEach(s => {
+        var li = document.createElement("li");
+        li.textContent = s;
+        listStrengths.appendChild(li);
+    });
+    
+    // Points de vigilance basés sur les types d'erreurs
+    var vigilances = [];
+    var hasPhysical = false;
+    var hasRigueurFormulation = false;
+    var hasEme = false;
+    var hasHorsCadreUsage = false;
+    var hasVerbState = false;
+    var hasHorsSujet = false;
+    
+    incorrectFuncs.forEach(function(f) {
+        var errType = f.error_type || f.errorType || "";
+        if (errType === "solution_physique") hasPhysical = true;
+        else if (errType === "rigueur_formulation" || errType === "verbe_action") hasRigueurFormulation = true;
+        else if (errType === "manque_eme") hasEme = true;
+        else if (errType === "hors_cadre_usage" || errType === "fin_de_vie") hasHorsCadreUsage = true;
+        else if (errType === "verbe_etat") hasVerbState = true;
+        else if (errType === "hors_sujet") hasHorsSujet = true;
+        else {
+            var commVal = (f.comm || f.commentaire || "").toLowerCase();
+            if (commVal.indexOf("physique") !== -1 || commVal.indexOf("solution") !== -1) hasPhysical = true;
+            if (commVal.indexOf("infinitif") !== -1 || commVal.indexOf("verbe d'action") !== -1 || commVal.indexOf("negation") !== -1 || commVal.indexOf("adverbe") !== -1) hasRigueurFormulation = true;
+            if (commVal.indexOf("complement") !== -1 || commVal.indexOf("eme") !== -1) hasEme = true;
+            if (commVal.indexOf("fin de vie") !== -1 || commVal.indexOf("recyclage") !== -1 || commVal.indexOf("economi") !== -1 || commVal.indexOf("poids") !== -1) hasHorsCadreUsage = true;
+            if (commVal.indexOf("etat") !== -1 || commVal.indexOf("être") !== -1 || commVal.indexOf("avoir") !== -1) hasVerbState = true;
+            if (commVal.indexOf("hors sujet") !== -1 || commVal.indexOf("impossible") !== -1) hasHorsSujet = true;
+        }
+    });
+    
+    if (hasPhysical) vigilances.push("Attention à ne pas citer d'éléments physiques (bouchon, carton...) dans tes rédactions.");
+    if (hasRigueurFormulation) vigilances.push("Rappel : respecte la rigueur de formulation (débuter par un verbe d'action à l'infinitif, sans tournure négative ni adverbe subjectif).");
+    if (hasEme) vigilances.push("Veille à toujours compléter le verbe par un complément de milieu extérieur (ex: 'contre...').");
+    if (hasHorsCadreUsage) vigilances.push("Les critères de coût, d'ACV, d'éco-conception ou de fin de vie sont hors-cadre et ne doivent pas figurer dans l'analyse fonctionnelle d'usage.");
+    if (hasVerbState) vigilances.push("Évite absolument les verbes d'état (être, avoir...). Privilégie des verbes dynamiques.");
+    if (hasHorsSujet) vigilances.push("Attention aux propositions hors sujet ou physiquement incompatibles avec l'emballage donné.");
+    
+    if (vigilances.length === 0) vigilances.push("Aucune erreur syntaxique majeure détectée. Continue à diversifier tes perspectives.");
+    
+    vigilances.forEach(v => {
+        var li = document.createElement("li");
+        li.textContent = v;
+        listVigilance.appendChild(li);
+    });
+
+    // Remplir le tableau des emballages de la session
+    var tableBody = document.getElementById("session-table-body");
+    tableBody.innerHTML = "";
+    AppState.sessionHistory.forEach(function(item) {
+        var row = document.createElement("tr");
+        var itemCorrectCount = item.evaluations ? item.evaluations.filter(e => e.status === "CORRECTE" || e.statut === "CORRECTE").length : 0;
+        var itemTotalCount = item.evaluations ? item.evaluations.length : 0;
+        row.innerHTML = `
+            <td style="font-weight:600; color:white;">${escapeHtml(item.packaging)}</td>
+            <td style="text-align:center; font-weight:700; color:var(--primary);">${item.score} PTS</td>
+            <td style="text-align:center;">
+                <span class="badge ${itemCorrectCount === itemTotalCount ? 'badge-correct' : (itemCorrectCount > 0 ? 'badge-partial' : 'badge-incorrect')}">
+                    ${itemCorrectCount} / ${itemTotalCount} correct(s)
+                </span>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    // Charger les statistiques globales depuis le serveur
+    fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            action: "studentDashboard",
+            userId: AppState.studentId
+        })
+    })
+    .then(function(res) {
+        if (!res.ok) throw new Error("Dashboard load failed");
+        return res.json();
+    })
+    .then(function(dbData) {
+        AppState.globalData = dbData;
+        // 1. Calculer score cumulé
+        var cumulScore = dbData.history.reduce((acc, curr) => acc + curr.score, 0);
+        document.getElementById("global-score-cumul").textContent = cumulScore;
+        
+        // 2. Nombre de sessions
+        document.getElementById("global-sessions-count").textContent = dbData.history.length;
+        
+        // 3. Rigueur moyenne
+        var avgPercentage = dbData.history.length > 0 ? Math.round(dbData.history.reduce((acc, curr) => acc + curr.percentageCorrect, 0) / dbData.history.length) : 0;
+        document.getElementById("global-percentage-avg").textContent = avgPercentage + "%";
+        
+        // 4. Timeline
+        var globalHistoryTimeline = document.getElementById("global-history-timeline");
+        globalHistoryTimeline.innerHTML = "";
+        dbData.history.forEach(function(sess, sIdx) {
+            var dateStr = "";
+            if (sess.date) {
+                dateStr = " (" + new Date(sess.date).toLocaleDateString("fr-FR", {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'}) + ")";
+            }
+            var levelText = sess.level === "avance" ? "Avancé" : "Débutant";
+            var levelBadgeColor = sess.level === "avance" ? "rgba(79,70,229,0.2)" : "rgba(14,165,233,0.2)";
+            var levelTextColor = sess.level === "avance" ? "#a5b4fc" : "#7dd3fc";
+
+            var item = document.createElement("div");
+            item.style.display = "flex";
+            item.style.justifyContent = "space-between";
+            item.style.alignItems = "center";
+            item.style.background = "rgba(255,255,255,0.02)";
+            item.style.border = "1px solid rgba(255,255,255,0.05)";
+            item.style.padding = "0.75rem 1rem";
+            item.style.borderRadius = "12px";
+            item.style.fontSize = "0.9rem";
+
+            item.innerHTML = `
+                <div>
+                    <span style="font-weight:700; color:white;">Session ${sIdx + 1}</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted); margin-left:0.5rem;">${dateStr}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <span style="background:${levelBadgeColor}; color:${levelTextColor}; font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px; text-transform:uppercase;">${levelText}</span>
+                    <span style="color:var(--success); font-weight:700;">${sess.percentageCorrect}% Correctes</span>
+                    <span style="font-weight:800; color:white; min-width:60px; text-align:right;">${sess.score} pts</span>
+                </div>
+            `;
+            globalHistoryTimeline.appendChild(item);
+        });
+        if (dbData.history.length === 0) {
+            globalHistoryTimeline.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:1rem;">Aucune session enregistrée.</p>`;
+        }
+        
+        // 5. Jauges de vigilance globales
+        var globalVigilanceBars = document.getElementById("global-vigilance-bars");
+        globalVigilanceBars.innerHTML = "";
+        
+        var labelsMapping = {
+            rigueur_formulation: "Rigueur de formulation",
+            verbe_etat: "Verbes d'État interdits",
+            solution_physique: "Solution Physique au lieu d'action",
+            manque_eme: "Complément EME Manquant",
+            hors_cadre_usage: "Hors-Cadre (Coûts/Éco/ACV)",
+            hors_sujet: "Fonction Hors Sujet / Impossible",
+            autre_incorrect: "Autres erreurs"
+        };
+        
+        var colorsMapping = {
+            rigueur_formulation: "linear-gradient(90deg, #f43f5e, #ec4899)",
+            verbe_etat: "linear-gradient(90deg, #ef4444, #f97316)",
+            solution_physique: "linear-gradient(90deg, #f59e0b, #eab308)",
+            manque_eme: "linear-gradient(90deg, #3b82f6, #06b6d4)",
+            hors_cadre_usage: "linear-gradient(90deg, #a855f7, #6366f1)",
+            hors_sujet: "linear-gradient(90deg, #64748b, #475569)",
+            autre_incorrect: "linear-gradient(90deg, #94a3b8, #cbd5e1)"
+        };
+
+        var totalErrors = Object.values(dbData.errorsSummary).reduce((a, b) => a + b, 0) || 1;
+        var hasErrors = Object.values(dbData.errorsSummary).some(v => v > 0);
+        
+        if (hasErrors) {
+            Object.keys(dbData.errorsSummary).sort(function(a, b) {
+                return dbData.errorsSummary[b] - dbData.errorsSummary[a];
+            }).forEach(function(key) {
+                var count = dbData.errorsSummary[key];
+                if (count === 0) return;
+                var pct = Math.round((count / totalErrors) * 100);
+                
+                var container = document.createElement("div");
+                container.style.display = "flex";
+                container.style.flexDirection = "column";
+                container.style.gap = "0.25rem";
+                
+                container.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#cbd5e1;">
+                        <span style="font-weight:600;">${labelsMapping[key]}</span>
+                        <span style="font-weight:700; color:var(--error);">${count} (${pct}%)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06); height:10px; border-radius:99px; overflow:hidden;">
+                        <div style="background:${colorsMapping[key]}; width:${pct}%; height:100%; border-radius:99px;"></div>
+                    </div>
+                `;
+                globalVigilanceBars.appendChild(container);
+            });
+        } else {
+            globalVigilanceBars.innerHTML = `<div style="text-align:center; color:var(--success); font-weight:700; padding:1rem; background:rgba(16,185,129,0.08); border:1px dashed rgba(16,185,129,0.3); border-radius:12px;">🎉 Excellente rigueur historique ! Aucun point de vigilance global.</div>`;
+        }
+    })
+    .catch(function(err) {
+        console.error("[ESEPAC] Erreur lors du chargement des statistiques globales :", err);
+    });
+}
+
+// ================================================================
+// FONCTION DE GENERATION DE RAPPORT PDF
+// ================================================================
+function downloadPDFReport() {
+    var element = document.getElementById("pdf-export-container");
+    var dateStr = new Date().toLocaleDateString("fr-FR");
+    
+    // 1. Calculs Session
+    var correctCount = 0;
+    var totalCount = 0;
+    var sessionConseils = [];
+    
+    AppState.sessionHistory.forEach(function(pack) {
+        if (pack.evaluations) {
+            pack.evaluations.forEach(function(ev) {
+                totalCount++;
+                if (ev.status === "CORRECTE" || ev.statut === "CORRECTE") {
+                    correctCount++;
+                }
+            });
+        }
+        if (pack.conseils && Array.isArray(pack.conseils)) {
+            pack.conseils.forEach(function(c) {
+                if (c && sessionConseils.indexOf(c) === -1) {
+                    sessionConseils.push(c);
+                }
+            });
+        }
+    });
+    
+    var sessionPct = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+    
+    // 2. Calculs Globaux
+    var cumulScore = AppState.sessionScore;
+    var sessionsPlayed = 1;
+    var avgPercentage = sessionPct;
+    var globalAdvice = [];
+    
+    if (AppState.globalData) {
+        cumulScore = AppState.globalData.history.reduce(function(acc, curr) { return acc + curr.score; }, 0);
+        sessionsPlayed = AppState.globalData.history.length;
+        avgPercentage = AppState.globalData.history.length > 0 
+            ? Math.round(AppState.globalData.history.reduce(function(acc, curr) { return acc + curr.percentageCorrect; }, 0) / AppState.globalData.history.length) 
+            : sessionPct;
+            
+        var errors = AppState.globalData.errorsSummary;
+        var totalErrors = Object.values(errors).reduce(function(a, b) { return a + b; }, 0);
+        
+        if (totalErrors > 0) {
+            var sortedKeys = Object.keys(errors).sort(function(a, b) { return errors[b] - errors[a]; });
+            var mainError = sortedKeys[0];
+            
+            if (mainError === 'solution_physique') {
+                globalAdvice.push("<strong>Priorité sémantique historique :</strong> Renforce ton abstraction. Tu as une forte tendance à nommer les solutions physiques (ex: carton, bouchon). Rappelle-toi de formuler l'action pure (ex: 'contenir', 'protéger') sans nommer le composant.");
+            } else if (mainError === 'rigueur_formulation') {
+                globalAdvice.push("<strong>Priorité de forme historique :</strong> Respecte scrupuleusement la structure active (verbe à l'infinitif en début) et positive. Évite absolument les tournures négatives (pas de 'ne pas laisser passer', utilise 'faire barrière').");
+            } else if (mainError === 'manque_eme') {
+                globalAdvice.push("<strong>Priorité de ciblage historique :</strong> Veille à ce que chaque fonction s'applique à un complément d'Environnement Extérieur (EME) bien défini (ex: 'contre la lumière', 'au consommateur') pour que la fonction soit complète.");
+            } else if (mainError === 'verbe_etat') {
+                globalAdvice.push("<strong>Priorité grammaticale historique :</strong> Supprime tous les verbes d'état (être, avoir, sembler) de tes formulations. Utilise exclusivement des verbes d'action robustes.");
+            } else if (mainError === 'hors_cadre_usage') {
+                globalAdvice.push("<strong>Priorité méthodologique historique :</strong> Les notions financières (coût de fabrication, coût logistique) ou environnementales (recyclabilité, ACV) doivent rester hors-cadre de la matrice d'usage.");
+            } else if (mainError === 'hors_sujet') {
+                globalAdvice.push("<strong>Priorité de réalisme historique :</strong> Fais attention à ne pas rédiger d'actions subies mécaniquement par le produit ou impossibles au regard de la physique de l'emballage analysé.");
+            }
+        }
+    }
+    
+    // Conseil global par défaut
+    globalAdvice.push("Pour diversifier tes réponses globales, continue d'appliquer le guidage par perspectives : Conservation & Stockage, Logistique & Flux, Usage & Ergonomie, Communication & Règlementation.");
+
+    var htmlContent = `
+        <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 25px; color: #1e293b; background: white;">
+            <!-- En-tête de marque -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom: 25px; border-bottom: 2px solid #0f172a; padding-bottom:15px;">
+                <tr>
+                    <td>
+                        <h1 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase;">Rapport de Synthèse d'Entraînement</h1>
+                        <p style="font-size: 12px; color: #475569; margin: 4px 0 0 0;">Analyse Fonctionnelle d'Usage · ESEPAC</p>
+                    </td>
+                    <td style="text-align:right; vertical-align:middle;">
+                        <img src="Logo_Esepac_2021.png" style="height: 45px; object-fit: contain;" alt="Logo ESEPAC">
+                    </td>
+                </tr>
+            </table>
+
+            <!-- SECTION 1 : BILAN DE LA SESSION CONCERNÉE -->
+            <div style="margin-bottom: 30px;">
+                <h2 style="font-size: 14px; font-weight: 800; color: #06b6d4; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #06b6d4; padding-bottom: 4px;">
+                    1. Bilan de la Session Réalisée
+                </h2>
+                
+                <!-- Chiffres clés Session -->
+                <table style="width:100%; border-collapse:collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
+                    <tr>
+                        <td style="padding: 10px 12px; font-size: 13px; width: 33%;">👤 <strong>Étudiant :</strong> ${escapeHtml(AppState.studentName)}</td>
+                        <td style="padding: 10px 12px; font-size: 13px; width: 33%;">📅 <strong>Date :</strong> ${dateStr}</td>
+                        <td style="padding: 10px 12px; font-size: 13px; width: 33%;">⚙️ <strong>Niveau :</strong> ${AppState.level === "debutant" ? "Débutant" : "Avancé"}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px 12px; font-size: 13px; font-weight:700; color:#4f46e5;">🏆 Score de Session : ${AppState.sessionScore} PTS</td>
+                        <td colspan="2" style="padding: 10px 12px; font-size: 13px; font-weight:700; color:#10b981;">🎯 Taux de Rigueur Session : ${sessionPct}% (${correctCount}/${totalCount} correctes)</td>
+                    </tr>
+                </table>
+
+                <!-- Conseils Session -->
+                <table style="width:100%; border-collapse:collapse; margin-bottom: 15px; gap: 15px;">
+                    <tr>
+                        <td style="width:49%; vertical-align: top; border: 1px solid #bbf7d0; background: #f0fdf4; padding: 12px; border-radius: 8px; border-left: 5px solid #166534;">
+                            <h3 style="color: #166534; font-size: 13px; margin: 0 0 8px 0; font-weight:700;">✓ Mes Points Forts (Session)</h3>
+                            <ul style="margin: 0; padding-left: 15px; font-size: 12px; line-height: 1.4; color: #14532d;">
+                                ${Array.from(document.querySelectorAll("#list-strengths li")).map(li => `<li>${escapeHtml(li.textContent)}</li>`).join('')}
+                            </ul>
+                        </td>
+                        <td style="width:2%;"></td>
+                        <td style="width:49%; vertical-align: top; border: 1px solid #fecaca; background: #fef2f2; padding: 12px; border-radius: 8px; border-left: 5px solid #991b1b;">
+                            <h3 style="color: #991b1b; font-size: 13px; margin: 0 0 8px 0; font-weight:700;">⚠ Vigilances (Session)</h3>
+                            <ul style="margin: 0; padding-left: 15px; font-size: 12px; line-height: 1.4; color: #7f1d1d;">
+                                ${Array.from(document.querySelectorAll("#list-vigilance li")).map(li => `<li>${escapeHtml(li.textContent)}</li>`).join('')}
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- Recommandations expert session -->
+                ${sessionConseils.length > 0 ? `
+                <div style="border: 1px solid #cbd5e1; background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.5;">
+                    <strong style="color:#475569; display:block; margin-bottom: 5px;">💡 Conseils Pédagogiques de l'Expert (pour aller plus loin) :</strong>
+                    <ul style="margin: 0; padding-left: 15px; color: #334155;">
+                        ${sessionConseils.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            </div>
+
+            <!-- SECTION 2 : BILAN GLOBAL DES SESSIONS -->
+            <div style="margin-bottom: 30px; page-break-inside: avoid;">
+                <h2 style="font-size: 14px; font-weight: 800; color: #6366f1; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #6366f1; padding-bottom: 4px;">
+                    2. Profil d'Entraînement Global (Historique)
+                </h2>
+                
+                <!-- Chiffres clés Globaux -->
+                <table style="width:100%; border-collapse:collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
+                    <tr>
+                        <td style="padding: 10px 12px; font-size: 13px; width: 33%;">📈 <strong>Score Total Cumulé :</strong> ${cumulScore} PTS</td>
+                        <td style="padding: 10px 12px; font-size: 13px; width: 33%;">🔄 <strong>Sessions Complétées :</strong> ${sessionsPlayed}</td>
+                        <td style="padding: 10px 12px; font-size: 13px; width: 33%;">🎯 <strong>Rigueur Moyenne :</strong> ${avgPercentage}%</td>
+                    </tr>
+                </table>
+                
+                <!-- Conseils Globaux -->
+                <div style="border: 1px solid #c7d2fe; background: #eef2ff; padding: 15px; border-radius: 8px; border-left: 5px solid #6366f1; font-size: 12px; line-height: 1.5; color: #312e81;">
+                    <strong style="color: #4338ca; display: block; margin-bottom: 8px; font-size: 13px;">🎯 Conseils &amp; Axes de Progression Globaux :</strong>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        ${globalAdvice.map(a => `<li style="margin-bottom: 6px;">${a}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    element.style.display = "block";
+    element.innerHTML = htmlContent;
+    
+    var opt = {
+        margin:       10,
+        filename:     'Bilan_Analyse_Fonctionnelle_' + AppState.studentName.replace(/\s+/g, '_') + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Lancer le chargement temporaire
+    var printBtn = document.getElementById("btn-print-report");
+    var oldText = printBtn.textContent;
+    printBtn.disabled = true;
+    printBtn.textContent = "Génération du PDF…";
+    
+    html2pdf().from(element).set(opt).save().then(function() {
+        element.style.display = "none";
+        element.innerHTML = "";
+        printBtn.disabled = false;
+        printBtn.textContent = oldText;
+    }).catch(function(err) {
+        console.error("Erreur génération PDF:", err);
+        alert("Erreur lors de la génération du PDF.");
+        printBtn.disabled = false;
+        printBtn.textContent = oldText;
+    });
+}
+
+// Action Bouton d'exportation PDF
+document.getElementById("btn-print-report").addEventListener("click", function() {
+    downloadPDFReport();
+});
+
+// Nouvelle Session / Restart
+document.getElementById("btn-restart").addEventListener("click", function() {
+    document.getElementById("screen-bilan").classList.add("hidden");
+    document.getElementById("screen-welcome").classList.remove("hidden");
+    
+    // Réinitialiser les champs de connexion
+    document.getElementById("student-password").value = "";
+    document.getElementById("student-select").value = "";
+    document.getElementById("class-select").value = "";
+    document.getElementById("student-select").disabled = true;
+    document.getElementById("student-password").disabled = true;
+    
+    loadStudentsList();
+});
+
+</script>
+</body>
+</html>

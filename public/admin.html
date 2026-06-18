@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESEPAC · Administration & Suivi Pédagogique</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;      /* Sky Blue */
+            --secondary: #4f46e5;    /* Indigo */
+            --background: #0f172a;   /* Slate 900 */
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.06);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-group {
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .logo-img {
+            height: 45px;
+            filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.2));
+        }
+        h1 {
+            font-size: 1.8rem; font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .sub-header { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; margin-top: 0.25rem; }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 0.25rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--primary); }
+
+        /* Login Screen */
+        .login-card {
+            max-width: 450px;
+            width: 100%;
+            margin: 5rem auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+            text-align: center;
+        }
+        .login-card h2 { font-size: 1.6rem; margin-bottom: 0.5rem; font-weight: 800; }
+        .login-card p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; }
+        
+        .form-group {
+            display: flex; flex-direction: column; text-align: left; margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.05em;
+        }
+        .form-group input {
+            padding: 0.85rem 1rem; border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: white; font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white; border: none;
+            padding: 1rem; border-radius: 12px;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            transition: all 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2);
+        }
+        .action-btn:hover {
+            transform: translateY(-1px); box-shadow: 0 15px 25px -5px rgba(14, 165, 233, 0.3);
+        }
+
+        /* Tabs Menu */
+        .tabs {
+            display: flex; gap: 1rem; margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .tab-btn {
+            background: none; border: none;
+            color: var(--text-muted); font-size: 1rem;
+            font-weight: 700; padding: 0.5rem 1rem;
+            cursor: pointer; position: relative;
+            transition: color 0.2s;
+        }
+        .tab-btn:hover { color: white; }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -0.6rem; left: 0; right: 0;
+            height: 3px; background: var(--primary); border-radius: 99px;
+        }
+
+        /* Glass Cards */
+        .grid-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem; margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex; flex-direction: column;
+        }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .stat-value { font-size: 2.2rem; font-weight: 800; color: white; margin-top: 0.5rem; }
+
+        .dashboard-layout {
+            display: grid; grid-template-columns: 1fr; gap: 2rem;
+        }
+        @media(min-width: 900px) {
+            .dashboard-layout { grid-template-columns: 1.5fr 1fr; }
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+        }
+        .panel h3 { font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 800; color: white; }
+
+        /* Meta-analysis Progress Bars */
+        .progress-group { margin-bottom: 1.5rem; }
+        .progress-label-row {
+            display: flex; justify-content: space-between; font-size: 0.9rem;
+            color: #cbd5e1; margin-bottom: 0.4rem; font-weight: 600;
+        }
+        .progress-container {
+            height: 12px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; border-radius: 99px; width: 0; transition: width 0.8s ease-out;
+        }
+        .fill-primary { background: var(--primary); }
+        .fill-success { background: var(--success); }
+        .fill-warning { background: var(--warning); }
+        .fill-error { background: var(--error); }
+        .fill-purple { background: var(--secondary); }
+
+        /* Tables style */
+        .table-container { overflow-x: auto; margin-top: 1rem; }
+        table {
+            width: 100%; border-collapse: collapse; text-align: left;
+            font-size: 0.95rem;
+        }
+        th {
+            padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.8rem;
+        }
+        td {
+            padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #e2e8f0;
+        }
+        tr:hover td { background: rgba(255,255,255,0.01); }
+
+        .search-row {
+            display: flex; gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .search-row input, .search-row select {
+            padding: 0.75rem 1rem; border-radius: 10px;
+            background: rgba(15,23,42,0.6); border: 1px solid var(--border);
+            color: white; font-size: 0.95rem;
+        }
+        .search-row input { flex-grow: 1; }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed rgba(14, 165, 233, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(14, 165, 233, 0.02);
+            margin-bottom: 1.5rem;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.06);
+        }
+        .upload-area p { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.5rem; }
+        .upload-area strong { color: var(--primary); }
+
+        /* Dialog/Modal Box */
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center;
+            z-index: 100; padding: 1rem;
+        }
+        .modal-card {
+            background: #121826; border: 1px solid var(--border);
+            max-width: 600px; width: 100%; border-radius: 24px;
+            padding: 2rem; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.5rem;
+        }
+        .modal-close {
+            background: none; border: none; color: var(--text-muted);
+            font-size: 1.5rem; cursor: pointer;
+        }
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .badge-correct { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-partial { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-incorrect { background: rgba(239, 68, 68, 0.15); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .hidden { display: none !important; }
+
+        /* Error notification banner */
+        .alert {
+            padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 600;
+        }
+        .alert-error { background: rgba(239, 68, 68, 0.15); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .alert-success { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .flex-row {
+            display: flex; gap: 1rem;
+        }
+        .flex-row > * { flex: 1; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <div class="logo-group">
+            <img class="logo-img" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
+            <div>
+                <h1>Espace Enseignant · AF</h1>
+                <div class="sub-header">Statistiques de TP &amp; Gestion des Promos</div>
+            </div>
+        </div>
+        <a href="index.html" class="back-link">← Retour au TP</a>
+    </header>
+
+    <!-- ÉCRAN CONNEXION ADMIN -->
+    <div id="admin-login-screen" class="login-card">
+        <h2>Accès Enseignant</h2>
+        <p>Saisis le mot de passe administrateur pour accéder aux données.</p>
+        <div id="login-error" class="alert alert-error hidden"></div>
+        <div class="form-group">
+            <label for="admin-pass-input">Mot de passe :</label>
+            <input type="password" id="admin-pass-input" placeholder="Mot de passe école">
+        </div>
+        <button id="btn-login-admin" class="action-btn">Se connecter</button>
+    </div>
+
+    <!-- ÉCRAN DASHBOARD (MASQUÉ PAR DÉFAUT) -->
+    <div id="admin-dashboard-screen" class="hidden">
+        
+        <!-- Onglets -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-meta')">📊 Méta-Analyse Globale</button>
+            <button class="tab-btn" onclick="switchTab('tab-students')">👥 Suivi des Étudiants</button>
+            <button class="tab-btn" onclick="switchTab('tab-gestion')">⚙️ Gestion &amp; Import CSV</button>
+        </div>
+
+        <!-- ONGLET 1 : META-ANALYSE GLOBALE -->
+        <div id="tab-meta" class="tab-content">
+            <div class="search-row" style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end; align-items: center; gap: 1rem;">
+                <label for="filter-meta-class" style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 0;">Filtrer par classe :</label>
+                <select id="filter-meta-class" onchange="renderStatsDashboard()" style="padding: 0.75rem 1rem; border-radius: 10px; background: rgba(15,23,42,0.6); border: 1px solid var(--border); color: white; font-size: 0.95rem; width: 250px;">
+                    <option value="">Toutes les classes</option>
+                </select>
+            </div>
+            <div class="grid-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Total Étudiants</span>
+                    <span id="stat-total-students" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Sessions de TP Jouées</span>
+                    <span id="stat-total-sessions" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Score Moyen Global</span>
+                    <span id="stat-avg-score" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div class="dashboard-layout">
+                <!-- Analyse des erreurs fréquentes -->
+                <div class="panel">
+                    <h3>🔍 Typologie des Erreurs Fréquentes</h3>
+                    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+                        Permet de détecter les concepts linguistiques et sémantiques mal assimilés par l'ensemble des étudiants.
+                    </p>
+                    
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Rigueur de formulation (Négation, Adverbe, Infinitif...)</span>
+                            <span id="err-lbl-rigueur-formulation">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="err-bar-rigueur-formulation" class="progress-fill fill-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Verbes d'État interdits (être, avoir...)</span>
+                            <span id="err-lbl-verbe-etat">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="err-bar-verbe-etat" class="progress-fill fill-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Solution Physique au lieu d'action (bouchon, carton...)</span>
+                            <span id="err-lbl-solution">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="err-bar-solution" class="progress-fill fill-warning"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Complément EME Manquant (cible extérieure)</span>
+                            <span id="err-lbl-eme">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="err-bar-eme" class="progress-fill fill-primary"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Hors-Cadre (Éco/Coût/ACV)</span>
+                            <span id="err-lbl-hors-cadre-usage">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="err-bar-hors-cadre-usage" class="progress-fill fill-purple"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Fonction Hors Sujet ou impossible</span>
+                            <span id="err-lbl-hors-sujet">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="err-bar-hors-sujet" class="progress-fill fill-purple"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Répartition des évaluations -->
+                <div class="panel">
+                    <h3>📈 Répartition des Validations</h3>
+                    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+                        Statut des fonctions formulées par les étudiants.
+                    </p>
+                    
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Correctes</span>
+                            <span id="eval-lbl-correct">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="eval-bar-correct" class="progress-fill fill-success"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Partiellement Correctes</span>
+                            <span id="eval-lbl-partial">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="eval-bar-partial" class="progress-fill fill-warning"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-group">
+                        <div class="progress-label-row">
+                            <span>Incorrectes</span>
+                            <span id="eval-lbl-incorrect">0</span>
+                        </div>
+                        <div class="progress-container">
+                            <div id="eval-bar-incorrect" class="progress-fill fill-error"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET 2 : SUIVI DES ÉTUDIANTS -->
+        <div id="tab-students" class="tab-content hidden">
+            <div class="panel" style="width: 100%;">
+                <h3>👥 Suivi Individuel</h3>
+                
+                <div class="search-row" style="display:flex; gap:1rem; align-items:center;">
+                    <input type="text" id="search-student" placeholder="Rechercher un étudiant (Nom, Prénom)..." oninput="filterStudentsTable()" style="flex:1;">
+                    <select id="filter-class" onchange="filterStudentsTable()">
+                        <option value="">Toutes les classes</option>
+                    </select>
+                    <button id="btn-clear-class-sessions" class="action-btn" style="background:#f59e0b; color:white; border:none; padding:0.75rem 1rem;" onclick="handleClearClassSessions()">Effacer les sessions de la classe</button>
+                    <button id="btn-delete-class" class="action-btn" style="background:#ef4444; color:white; border:none; padding:0.75rem 1rem;" onclick="handleDeleteClass()">Supprimer la classe sélectionnée</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Classe</th>
+                                <th>Nom</th>
+                                <th>Sessions</th>
+                                <th>Score Max</th>
+                                <th>Score Moyen</th>
+                                <th>Erreurs</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body">
+                            <!-- Dynamique -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET 3 : GESTION & IMPORT CSV -->
+        <div id="tab-gestion" class="tab-content hidden">
+            <div class="dashboard-layout">
+                <!-- Import CSV -->
+                <div class="panel">
+                    <h3>📥 Importation Collective par CSV</h3>
+                    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+                        Permet de charger la liste d'une classe complète en quelques secondes. 
+                    </p>
+                    
+                    <div id="import-msg" class="alert hidden"></div>
+
+                    <!-- Zone Drag & Drop -->
+                    <div id="csv-drag-zone" class="upload-area" onclick="document.getElementById('csv-file-input').click()">
+                        <strong>Glisse &amp; Dépose un fichier .csv</strong>
+                        <p>ou clique pour parcourir tes fichiers</p>
+                        <span style="font-size:0.8rem; color:var(--text-muted); display:block; margin-top:0.75rem;">(Format d'encodage attendu : UTF-8)</span>
+                    </div>
+                    <input type="file" id="csv-file-input" class="hidden" accept=".csv">
+
+                    <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:12px; font-size:0.85rem; color:#cbd5e1;">
+                        <strong style="color:var(--primary); display:block; margin-bottom:0.5rem;">Structure attendue pour le fichier CSV :</strong>
+                        <code>nom, prenom, classe, mot_de_passe</code>
+                        <p style="color:var(--text-muted); margin-top:0.5rem;">
+                            * Si la colonne <code>mot_de_passe</code> est vide, un mot de passe temporaire individuel sera automatiquement généré (ex: prenom347).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Ajout Manuel -->
+                <div class="panel">
+                    <h3>👤 Ajouter un Étudiant</h3>
+                    
+                    <div id="add-user-msg" class="alert hidden"></div>
+
+                    <div class="form-group">
+                        <label for="add-user-name">Nom :</label>
+                        <input type="text" id="add-user-name" placeholder="Ex : ISSARTEL">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-firstname">Prénom :</label>
+                        <input type="text" id="add-user-firstname" placeholder="Ex : Jerome">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-class">Classe / Promo :</label>
+                        <input type="text" id="add-user-class" placeholder="Ex : Master 1 Packaging">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-pass">Mot de passe :</label>
+                        <input type="text" id="add-user-pass" placeholder="Saisir un mot de passe">
+                    </div>
+                    <button id="btn-add-user-submit" class="action-btn">Créer le compte</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODALE DÉTAILS INDIVIDUELS ÉTUDIANT -->
+<div id="student-modal" class="modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 id="modal-student-name">Détails Étudiant</h2>
+            <button class="modal-close" onclick="closeStudentModal()">×</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="stat-card" style="padding:1rem;">
+                    <span class="stat-label">Sessions de TP</span>
+                    <span id="modal-sessions-count" class="stat-value" style="font-size:1.6rem;">0</span>
+                </div>
+                <div class="stat-card" style="padding:1rem;">
+                    <span class="stat-label">Score Moyen</span>
+                    <span id="modal-avg-score" class="stat-value" style="font-size:1.6rem;">0</span>
+                </div>
+            </div>
+
+            <div class="panel" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem; color:white;">Typologie des Erreurs de l'étudiant</h4>
+                <div class="progress-group">
+                    <div class="progress-label-row">
+                        <span>Rigueur de formulation</span>
+                        <span id="modal-err-rigueur-formulation">0</span>
+                    </div>
+                    <div class="progress-container"><div id="modal-bar-rigueur-formulation" class="progress-fill fill-error"></div></div>
+                </div>
+                <div class="progress-group">
+                    <div class="progress-label-row">
+                        <span>Verbes d'État</span>
+                        <span id="modal-err-verbe">0</span>
+                    </div>
+                    <div class="progress-container"><div id="modal-bar-verbe" class="progress-fill fill-error"></div></div>
+                </div>
+                <div class="progress-group">
+                    <div class="progress-label-row">
+                        <span>Solution Physique</span>
+                        <span id="modal-err-solution">0</span>
+                    </div>
+                    <div class="progress-container"><div id="modal-bar-solution" class="progress-fill fill-warning"></div></div>
+                </div>
+                <div class="progress-group">
+                    <div class="progress-label-row">
+                        <span>EME Manquant</span>
+                        <span id="modal-err-eme">0</span>
+                    </div>
+                    <div class="progress-container"><div id="modal-bar-eme" class="progress-fill fill-primary"></div></div>
+                </div>
+                <div class="progress-group">
+                    <div class="progress-label-row">
+                        <span>Hors-Cadre (Éco/Coût/ACV)</span>
+                        <span id="modal-err-hors-cadre-usage">0</span>
+                    </div>
+                    <div class="progress-container"><div id="modal-bar-hors-cadre-usage" class="progress-fill fill-purple"></div></div>
+                </div>
+                <div class="progress-group">
+                    <div class="progress-label-row">
+                        <span>Hors Sujet / Impossible</span>
+                        <span id="modal-err-hors-sujet">0</span>
+                    </div>
+                    <div class="progress-container"><div id="modal-bar-hors-sujet" class="progress-fill fill-purple"></div></div>
+                </div>
+            </div>
+
+            <div class="panel" style="padding:1.5rem; max-height:400px; overflow-y:auto;">
+                <h4 style="margin-bottom:1rem; color:white;">📜 Historique des Sessions d'Analyse</h4>
+                <div id="modal-details-loader" style="text-align:center; padding:1.5rem; color:var(--text-muted); font-weight:600;">
+                    Chargement des sessions...
+                </div>
+                <div id="modal-details-container" class="hidden" style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <!-- Injecté par JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var currentAdminPassword = "";
+    var apiStatsData = null;
+
+    window.addEventListener("DOMContentLoaded", function() {
+        // Tenter de restaurer la session admin
+        var savedPass = null;
+        try {
+            savedPass = sessionStorage.getItem("esepac_admin_pass");
+        } catch(e) {}
+        if (savedPass) {
+            currentAdminPassword = savedPass;
+            loadStatsDashboard();
+        }
+
+        // Connexion Admin
+        document.getElementById("btn-login-admin").addEventListener("click", function() {
+            var pass = document.getElementById("admin-pass-input").value.trim();
+            if (!pass) return;
+            currentAdminPassword = pass;
+            loadStatsDashboard();
+        });
+
+        // Ajout Manuel Étudiant
+        document.getElementById("btn-add-user-submit").addEventListener("click", handleAddUser);
+
+        // Upload CSV
+        setupCsvUpload();
+    });
+
+    // Gestion des Onglets
+    function switchTab(tabId) {
+        document.querySelectorAll(".tab-btn").forEach(function(btn) {
+            btn.classList.remove("active");
+        });
+        document.querySelectorAll(".tab-content").forEach(function(content) {
+            content.classList.add("hidden");
+        });
+
+        event.target.classList.add("active");
+        document.getElementById(tabId).classList.remove("hidden");
+    }
+
+    // Charger les statistiques depuis l'API
+    async function loadStatsDashboard() {
+        var errorBanner = document.getElementById("login-error");
+        errorBanner.classList.add("hidden");
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + currentAdminPassword
+                }
+            });
+
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.error || "Mot de passe incorrect.");
+            }
+
+            apiStatsData = await res.json();
+            
+            // Stocker le mot de passe valide
+            try {
+                sessionStorage.setItem("esepac_admin_pass", currentAdminPassword);
+            } catch(e) {}
+
+            // Masquer l'écran de login et afficher le dashboard
+            document.getElementById("admin-login-screen").classList.add("hidden");
+            document.getElementById("admin-dashboard-screen").classList.remove("hidden");
+
+            renderStatsDashboard();
+
+        } catch (e) {
+            errorBanner.textContent = e.message;
+            errorBanner.classList.remove("hidden");
+            try {
+                sessionStorage.removeItem("esepac_admin_pass");
+            } catch(e) {}
+        }
+    }
+
+    // Rendre les éléments visuels du tableau de bord
+    function renderStatsDashboard() {
+        if (!apiStatsData) return;
+
+        var selectedClass = document.getElementById("filter-meta-class") ? document.getElementById("filter-meta-class").value : "";
+        var stats;
+
+        if (!selectedClass) {
+            // Stats globales
+            stats = apiStatsData.globalStats;
+        } else {
+            // Filtrer par classe sélectionnée
+            var classStudents = apiStatsData.studentStats.filter(function(s) {
+                return s.class.toLowerCase() === selectedClass;
+            });
+
+            var totalStudents = classStudents.length;
+            var totalSessions = classStudents.reduce(function(acc, s) { return acc + s.sessionsCount; }, 0);
+            var totalScoreSum = classStudents.reduce(function(acc, s) { return acc + (s.avgScore * s.sessionsCount); }, 0);
+            var averageScore = totalSessions ? Math.round(totalScoreSum / totalSessions) : 0;
+
+            var errors = {
+                verbe_etat: 0,
+                rigueur_formulation: 0,
+                solution_physique: 0,
+                manque_eme: 0,
+                hors_cadre_usage: 0,
+                hors_sujet: 0,
+                autre_incorrect: 0
+            };
+            classStudents.forEach(function(s) {
+                for (var key in errors) {
+                    errors[key] += s.errors[key] || 0;
+                }
+            });
+
+            var evaluations = {
+                CORRECTE: 0,
+                'PARTIELLEMENT CORRECTE': 0,
+                INCORRECTE: 0
+            };
+            classStudents.forEach(function(s) {
+                for (var key in evaluations) {
+                    evaluations[key] += s.evaluations[key] || 0;
+                }
+            });
+
+            stats = {
+                totalStudents: totalStudents,
+                totalSessions: totalSessions,
+                averageScore: averageScore,
+                errors: errors,
+                evaluations: evaluations
+            };
+        }
+
+        // Stats brutes
+        document.getElementById("stat-total-students").textContent = stats.totalStudents;
+        document.getElementById("stat-total-sessions").textContent = stats.totalSessions;
+        document.getElementById("stat-avg-score").textContent = stats.averageScore + " pts";
+
+        // Typologie des erreurs (calculer les pourcentages par rapport au nombre total d'erreurs)
+        var totalErrors = Object.values(stats.errors).reduce((a, b) => a + b, 0) || 1;
+        
+        setupProgressFill("err-bar-rigueur-formulation", "err-lbl-rigueur-formulation", stats.errors.rigueur_formulation, totalErrors);
+        setupProgressFill("err-bar-verbe-etat", "err-lbl-verbe-etat", stats.errors.verbe_etat, totalErrors);
+        setupProgressFill("err-bar-solution", "err-lbl-solution", stats.errors.solution_physique, totalErrors);
+        setupProgressFill("err-bar-eme", "err-lbl-eme", stats.errors.manque_eme, totalErrors);
+        setupProgressFill("err-bar-hors-cadre-usage", "err-lbl-hors-cadre-usage", stats.errors.hors_cadre_usage, totalErrors);
+        setupProgressFill("err-bar-hors-sujet", "err-lbl-hors-sujet", stats.errors.hors_sujet, totalErrors);
+
+        // Validation des évaluations
+        var totalEvals = Object.values(stats.evaluations).reduce((a, b) => a + b, 0) || 1;
+        setupProgressFill("eval-bar-correct", "eval-lbl-correct", stats.evaluations.CORRECTE, totalEvals);
+        setupProgressFill("eval-bar-partial", "eval-lbl-partial", stats.evaluations['PARTIELLEMENT CORRECTE'], totalEvals);
+        setupProgressFill("eval-bar-incorrect", "eval-lbl-incorrect", stats.evaluations.INCORRECTE, totalEvals);
+
+        // Table des étudiants
+        renderStudentsTable();
+
+        // Classes uniques pour filtre
+        populateClassFilters();
+    }
+
+    function setupProgressFill(barId, labelId, value, total) {
+        var pct = Math.round((value / total) * 100);
+        document.getElementById(barId).style.width = pct + "%";
+        document.getElementById(labelId).textContent = value + " (" + pct + "%)";
+    }
+
+    // Remplir le tableau des étudiants
+    function renderStudentsTable() {
+        var tbody = document.getElementById("students-table-body");
+        tbody.innerHTML = "";
+
+        if (!apiStatsData || !apiStatsData.studentStats) return;
+
+        apiStatsData.studentStats.forEach(function(s) {
+            var totalErrors = Object.values(s.errors).reduce((a, b) => a + b, 0);
+            var tr = document.createElement("tr");
+            tr.className = "student-row-item";
+            tr.dataset.class = s.class.toLowerCase();
+            tr.dataset.search = (s.name + " " + s.firstname).toLowerCase();
+
+            tr.innerHTML = `
+                <td style="font-weight:600; color:var(--primary);">${escapeHtml(s.class)}</td>
+                <td style="font-weight:700;">${escapeHtml(s.name)} ${escapeHtml(s.firstname)}</td>
+                <td>${s.sessionsCount}</td>
+                <td style="color:var(--success); font-weight:700;">${s.maxScore} pts</td>
+                <td>${s.avgScore} pts</td>
+                <td style="color:var(--error);">${totalErrors} erreurs</td>
+                <td style="display:flex; gap:0.5rem;">
+                    <button class="action-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem; box-shadow:none;" onclick="openStudentModal('${s.id}')">Détails</button>
+                    <button class="action-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem; box-shadow:none; background:#f59e0b;" onclick="handleClearStudentSessions('${s.id}', '${escapeHtml(s.firstname)} ${escapeHtml(s.name)}')">Effacer Sessions</button>
+                    <button class="action-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem; box-shadow:none; background:#ef4444;" onclick="handleDeleteUser('${s.id}', '${escapeHtml(s.firstname)} ${escapeHtml(s.name)}')">Supprimer</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function populateClassFilters() {
+        var filter = document.getElementById("filter-class");
+        var metaFilter = document.getElementById("filter-meta-class");
+        
+        // N'initialiser les filtres que s'ils sont vides pour éviter de réinitialiser la sélection
+        if (filter.options.length > 1) return;
+
+        filter.innerHTML = '<option value="">Toutes les classes</option>';
+        if (metaFilter) {
+            metaFilter.innerHTML = '<option value="">Toutes les classes</option>';
+        }
+        
+        var classes = [];
+        apiStatsData.studentStats.forEach(function(s) {
+            if (classes.indexOf(s.class) === -1) {
+                classes.push(s.class);
+            }
+        });
+        classes.sort();
+
+        classes.forEach(function(c) {
+            var opt = document.createElement("option");
+            opt.value = c.toLowerCase();
+            opt.textContent = c;
+            opt.style.background = "#0f172a";
+            filter.appendChild(opt);
+
+            if (metaFilter) {
+                var optMeta = document.createElement("option");
+                optMeta.value = c.toLowerCase();
+                optMeta.textContent = c;
+                optMeta.style.background = "#0f172a";
+                metaFilter.appendChild(optMeta);
+            }
+        });
+    }
+
+    // Filtrer le tableau en temps réel
+    function filterStudentsTable() {
+        var searchVal = document.getElementById("search-student").value.toLowerCase().trim();
+        var classVal = document.getElementById("filter-class").value;
+
+        document.querySelectorAll(".student-row-item").forEach(function(tr) {
+            var searchMatch = !searchVal || tr.dataset.search.indexOf(searchVal) !== -1;
+            var classMatch = !classVal || tr.dataset.class === classVal;
+
+            if (searchMatch && classMatch) {
+                tr.classList.remove("hidden");
+            } else {
+                tr.classList.add("hidden");
+            }
+        });
+    }
+
+    // Modale Détails Étudiant
+    async function openStudentModal(userId) {
+        var s = apiStatsData.studentStats.find(function(item) { return item.id === userId; });
+        if (!s) return;
+
+        document.getElementById("modal-student-name").textContent = s.name + " " + s.firstname + " (" + s.class + ")";
+        document.getElementById("modal-sessions-count").textContent = s.sessionsCount;
+        document.getElementById("modal-avg-score").textContent = s.avgScore + " pts";
+
+        var totalErrors = Object.values(s.errors).reduce((a, b) => a + b, 0) || 1;
+        setupProgressFill("modal-bar-rigueur-formulation", "modal-err-rigueur-formulation", s.errors.rigueur_formulation, totalErrors);
+        setupProgressFill("modal-bar-verbe", "modal-err-verbe", s.errors.verbe_etat, totalErrors);
+        setupProgressFill("modal-bar-solution", "modal-err-solution", s.errors.solution_physique, totalErrors);
+        setupProgressFill("modal-bar-eme", "modal-err-eme", s.errors.manque_eme, totalErrors);
+        setupProgressFill("modal-bar-hors-cadre-usage", "modal-err-hors-cadre-usage", s.errors.hors_cadre_usage, totalErrors);
+        setupProgressFill("modal-bar-hors-sujet", "modal-err-hors-sujet", s.errors.hors_sujet, totalErrors);
+
+        document.getElementById("student-modal").style.display = "flex";
+
+        // Réinitialiser et charger les détails de session (Lazy Loading)
+        var loaderEl = document.getElementById("modal-details-loader");
+        var containerEl = document.getElementById("modal-details-container");
+        
+        loaderEl.style.display = "block";
+        containerEl.classList.add("hidden");
+        containerEl.innerHTML = "";
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + currentAdminPassword
+                },
+                body: JSON.stringify({
+                    action: "getStudentDetails",
+                    userId: userId
+                })
+            });
+
+            if (!res.ok) throw new Error("Impossible de charger les détails.");
+            var data = await res.json();
+
+            loaderEl.style.display = "none";
+            containerEl.classList.remove("hidden");
+
+            if (!data.sessions || data.sessions.length === 0) {
+                containerEl.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:1rem;">Aucune session enregistrée.</div>';
+                return;
+            }
+
+            data.sessions.forEach(function(sess) {
+                var dateStr = new Date(sess.created_at).toLocaleString('fr-FR', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                var sessDiv = document.createElement("div");
+                sessDiv.style.borderBottom = "1px solid var(--border)";
+                sessDiv.style.paddingBottom = "1rem";
+                sessDiv.style.marginBottom = "1rem";
+
+                var sessLogs = (data.logs || []).filter(l => l.session_id === sess.id);
+                var logsHtml = "";
+
+                if (sessLogs.length === 0) {
+                    logsHtml = '<div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem; font-style:italic;">Aucune fonction enregistrée pour cette session.</div>';
+                } else {
+                    logsHtml = sessLogs.map(function(log, idx) {
+                        var badgeClass = log.evaluation_status === "CORRECTE" ? "badge-correct" : (log.evaluation_status === "PARTIELLEMENT CORRECTE" ? "badge-partial" : "badge-incorrect");
+                        var badgeText = log.evaluation_status === "CORRECTE" ? "Correcte" : (log.evaluation_status === "PARTIELLEMENT CORRECTE" ? "Partielle" : "Incorrecte");
+                        var detailId = "detail-" + sess.id + "-" + idx;
+
+                        return `
+                            <div style="margin-top:0.75rem; font-size:0.85rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(255,255,255,0.02); padding:0.4rem 0.6rem; border-radius:8px; border:1px solid rgba(255,255,255,0.04);" onclick="toggleLogDetail('${detailId}')">
+                                    <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 80%;">
+                                        <span style="font-weight:600; color:var(--primary); min-width:80px; flex-shrink:0;">${escapeHtml(log.packaging_name)}</span>
+                                        <span style="color:white; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"${escapeHtml(log.student_answer)}"</span>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+                                        <span class="badge ${badgeClass}" style="font-size:0.75rem; padding:0.1rem 0.3rem;">${badgeText}</span>
+                                        <span style="color:var(--text-muted); font-size:0.8rem;">▼</span>
+                                    </div>
+                                </div>
+                                <div id="${detailId}" class="hidden" style="background:rgba(15,23,42,0.4); border-left:3px solid var(--primary); padding:0.6rem 0.8rem; margin-top:0.25rem; border-radius:4px; font-size:0.8rem; line-height:1.4;">
+                                    <div><strong>Commentaire IA :</strong> ${escapeHtml(log.ai_comment || "Aucun commentaire")}</div>
+                                    ${log.ai_suggestion ? `<div style="margin-top:0.3rem;"><strong>Suggestion :</strong> <span style="color:var(--primary); font-weight:600;">"${escapeHtml(log.ai_suggestion)}"</span></div>` : ""}
+                                </div>
+                            </div>
+                        `;
+                    }).join("");
+                }
+
+                sessDiv.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; margin-bottom:0.25rem;">
+                        <span style="font-weight:700; color:white;">📅 Session du ${dateStr} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${sess.level === 'avance' ? 'Avancé' : 'Débutant'})</span></span>
+                        <span style="font-weight:800; color:var(--primary);">${sess.score} PTS</span>
+                    </div>
+                    <div>${logsHtml}</div>
+                `;
+                containerEl.appendChild(sessDiv);
+            });
+
+        } catch (e) {
+            loaderEl.style.display = "none";
+            containerEl.classList.remove("hidden");
+            containerEl.innerHTML = '<div style="color:var(--error); text-align:center; padding:1rem;">Erreur : ' + escapeHtml(e.message) + '</div>';
+        }
+    }
+
+    function toggleLogDetail(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.classList.toggle("hidden");
+        }
+    }
+
+    function closeStudentModal() {
+        document.getElementById("student-modal").style.display = "none";
+    }
+
+    // Supprimer individuellement un étudiant
+    async function handleDeleteUser(userId, fullname) {
+        if (!confirm("Es-tu sûr de vouloir supprimer définitivement l'étudiant " + fullname + " ainsi que l'ensemble de ses sessions et logs d'activité ?")) {
+            return;
+        }
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + currentAdminPassword
+                },
+                body: JSON.stringify({
+                    action: "deleteUser",
+                    userId: userId
+                })
+            });
+
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.error || "Impossible de supprimer l'étudiant.");
+            }
+
+            alert("L'étudiant a été supprimé avec succès.");
+            loadStatsDashboard();
+        } catch (e) {
+            alert("Erreur: " + e.message);
+        }
+    }
+
+    // Supprimer une classe entière
+    async function handleDeleteClass() {
+        var classVal = document.getElementById("filter-class").value;
+        if (!classVal) {
+            alert("Veuillez d'abord sélectionner une classe dans le filtre déroulant pour pouvoir la supprimer.");
+            return;
+        }
+
+        // Trouver le nom propre de la classe (non mis en minuscule)
+        var classOpt = Array.from(document.getElementById("filter-class").options).find(opt => opt.value === classVal);
+        var className = classOpt ? classOpt.textContent : classVal;
+
+        if (!confirm("ATTENTION : Es-tu sûr de vouloir supprimer TOUS les étudiants de la classe \"" + className + "\" ainsi que TOUTES leurs sessions et logs associés ? Cette action est irréversible.")) {
+            return;
+        }
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + currentAdminPassword
+                },
+                body: JSON.stringify({
+                    action: "deleteClass",
+                    className: className
+                })
+            });
+
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.error || "Impossible de supprimer la classe.");
+            }
+
+            alert("La classe et tous ses étudiants ont été supprimés.");
+            // Reset le filtre de classe
+            document.getElementById("filter-class").value = "";
+            loadStatsDashboard();
+        } catch (e) {
+            alert("Erreur: " + e.message);
+        }
+    }
+
+    // Effacer les sessions d'un étudiant
+    async function handleClearStudentSessions(userId, fullname) {
+        if (!confirm("Es-tu sûr de vouloir effacer toutes les sessions et logs d'activité de l'étudiant " + fullname + " ? Son compte/profil sera conservé.")) {
+            return;
+        }
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + currentAdminPassword
+                },
+                body: JSON.stringify({
+                    action: "clearStudentSessions",
+                    userId: userId
+                })
+            });
+
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.error || "Impossible d'effacer les sessions.");
+            }
+
+            alert("Les données de session de l'étudiant ont été effacées avec succès.");
+            loadStatsDashboard();
+        } catch (e) {
+            alert("Erreur: " + e.message);
+        }
+    }
+
+    // Effacer les sessions d'une classe entière
+    async function handleClearClassSessions() {
+        var classVal = document.getElementById("filter-class").value;
+        if (!classVal) {
+            alert("Veuillez d'abord sélectionner une classe dans le filtre déroulant pour pouvoir effacer ses sessions.");
+            return;
+        }
+
+        var classOpt = Array.from(document.getElementById("filter-class").options).find(opt => opt.value === classVal);
+        var className = classOpt ? classOpt.textContent : classVal;
+
+        if (!confirm("Es-tu sûr de vouloir effacer TOUTES les sessions et logs associés de la classe \"" + className + "\" ? Les profils des étudiants seront conservés.")) {
+            return;
+        }
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + currentAdminPassword
+                },
+                body: JSON.stringify({
+                    action: "clearClassSessions",
+                    className: className
+                })
+            });
+
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.error || "Impossible d'effacer les sessions de la classe.");
+            }
+
+            alert("Toutes les sessions de la classe ont été effacées.");
+            loadStatsDashboard();
+        } catch (e) {
+            alert("Erreur: " + e.message);
+        }
+    }
+
+    // Ajout manuel utilisateur
+    async function handleAddUser() {
+        var name = document.getElementById("add-user-name").value.trim();
+        var firstname = document.getElementById("add-user-firstname").value.trim();
+        var className = document.getElementById("add-user-class").value.trim();
+        var password = document.getElementById("add-user-pass").value.trim();
+
+        var msg = document.getElementById("add-user-msg");
+        msg.className = "alert hidden";
+
+        if (!name || !firstname || !className || !password) {
+            msg.textContent = "Tous les champs doivent être saisis.";
+            msg.className = "alert alert-error";
+            return;
+        }
+
+        try {
+            var res = await fetch("/api/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + currentAdminPassword
+                },
+                body: JSON.stringify({
+                    action: "addUser",
+                    name: name.toUpperCase(),
+                    firstname: firstname,
+                    className: className,
+                    password: password
+                })
+            });
+
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.error || "Impossible d'ajouter l'étudiant.");
+            }
+
+            msg.textContent = "Compte créé pour " + firstname + " " + name + " !";
+            msg.className = "alert alert-success";
+
+            // Réinitialiser les inputs
+            document.getElementById("add-user-name").value = "";
+            document.getElementById("add-user-firstname").value = "";
+            document.getElementById("add-user-class").value = "";
+            document.getElementById("add-user-pass").value = "";
+
+            // Recharger le dashboard
+            loadStatsDashboard();
+
+        } catch (e) {
+            msg.textContent = e.message;
+            msg.className = "alert alert-error";
+        }
+    }
+
+    // Configuration Upload CSV
+    function setupCsvUpload() {
+        var dragZone = document.getElementById("csv-drag-zone");
+        var fileInput = document.getElementById("csv-file-input");
+
+        dragZone.addEventListener("dragover", function(e) {
+            e.preventDefault();
+            dragZone.classList.add("dragover");
+        });
+        dragZone.addEventListener("dragleave", function() {
+            dragZone.classList.remove("dragover");
+        });
+        dragZone.addEventListener("drop", function(e) {
+            e.preventDefault();
+            dragZone.classList.remove("dragover");
+            if (e.dataTransfer.files.length > 0) {
+                parseAndUploadCSV(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener("change", function() {
+            if (fileInput.files.length > 0) {
+                parseAndUploadCSV(fileInput.files[0]);
+            }
+        });
+    }
+
+    // Parse et envoi du fichier CSV
+    function parseAndUploadCSV(file) {
+        var msg = document.getElementById("import-msg");
+        msg.className = "alert hidden";
+
+        var reader = new FileReader();
+        reader.onload = async function(e) {
+            var text = e.target.result;
+            var lines = text.split(/\r?\n/);
+            var users = [];
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+
+                var cols = line.split(",");
+                // Ignorer une éventuelle ligne d'entête "nom,prenom,classe..."
+                if (i === 0 && (cols[0].toLowerCase().indexOf("nom") !== -1 || cols[1]?.toLowerCase().indexOf("prenom") !== -1)) {
+                    continue;
+                }
+
+                if (cols.length >= 3) {
+                    users.push({
+                        name: cols[0].trim(),
+                        firstname: cols[1].trim(),
+                        class: cols[2].trim(),
+                        password: cols[3] ? cols[3].trim() : ""
+                    });
+                }
+            }
+
+            if (users.length === 0) {
+                msg.textContent = "Aucun utilisateur trouvé dans le fichier CSV. Vérifie le format (séparateur virgule).";
+                msg.className = "alert alert-error";
+                return;
+            }
+
+            // Envoyer à l'API
+            try {
+                var res = await fetch("/api/admin", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + currentAdminPassword
+                    },
+                    body: JSON.stringify({
+                        action: "importCSV",
+                        users: users
+                    })
+                });
+
+                if (!res.ok) {
+                    var errData = await res.json();
+                    throw new Error(errData.error || "Erreur d'importation.");
+                }
+
+                var resData = await res.json();
+                msg.textContent = resData.message;
+                msg.className = "alert alert-success";
+
+                // Recharger les données
+                loadStatsDashboard();
+
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.className = "alert alert-error";
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+</script>
+</body>
+</html>
