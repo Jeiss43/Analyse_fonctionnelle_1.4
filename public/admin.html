@@ -1245,11 +1245,21 @@
             var lines = text.split(/\r?\n/);
             var users = [];
 
+            var separator = ",";
+            if (lines.length > 0) {
+                var firstLine = lines[0];
+                var commaCount = (firstLine.split(",").length - 1);
+                var semicolonCount = (firstLine.split(";").length - 1);
+                if (semicolonCount > commaCount) {
+                    separator = ";";
+                }
+            }
+
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim();
                 if (!line) continue;
 
-                var cols = line.split(",");
+                var cols = line.split(separator);
                 // Ignorer une éventuelle ligne d'entête "nom,prenom,classe..."
                 if (i === 0 && (cols[0].toLowerCase().indexOf("nom") !== -1 || cols[1]?.toLowerCase().indexOf("prenom") !== -1)) {
                     continue;
@@ -1266,7 +1276,7 @@
             }
 
             if (users.length === 0) {
-                msg.textContent = "Aucun utilisateur trouvé dans le fichier CSV. Vérifie le format (séparateur virgule).";
+                msg.textContent = "Aucun utilisateur trouvé dans le fichier CSV. Vérifie le format (séparateur virgule ou point-virgule).";
                 msg.className = "alert alert-error";
                 return;
             }

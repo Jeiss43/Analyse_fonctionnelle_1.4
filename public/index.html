@@ -1040,6 +1040,13 @@ window.addEventListener("DOMContentLoaded", async function() {
     feedbackGeneral    = document.getElementById("feedback-general");
     bilanScreen        = document.getElementById("screen-bilan");
 
+    if (window.location.protocol === 'file:') {
+        var errDiv = document.getElementById("welcome-error");
+        if (errDiv) {
+            errDiv.innerHTML = "⚠️ <strong>Mode Fichier Détecté :</strong> Tu as ouvert ce fichier HTML directement. L'accès à la base de données requiert un serveur. Lance le serveur avec la commande <code>npm start</code> et ouvre <a href='http://localhost:3000' style='color: var(--primary); font-weight: bold;'>http://localhost:3000</a> dans ton navigateur.";
+        }
+    }
+
     loadStudentsList();
     
     // Détection de l'API Serverless
@@ -1083,9 +1090,13 @@ async function loadStudentsList() {
             populateClassSelect();
         } else {
             console.error("[ESEPAC] Impossible de charger la liste des étudiants.");
+            document.getElementById("welcome-error").innerText = "Impossible de charger la liste des classes depuis la base de données (Erreur " + res.status + ").";
         }
     } catch (e) {
         console.error("[ESEPAC] Erreur de communication API users:", e);
+        if (window.location.protocol !== 'file:') {
+            document.getElementById("welcome-error").innerText = "Erreur de communication avec l'API /api/users. Vérifie que le serveur de développement est bien lancé.";
+        }
     }
 }
 
@@ -1094,11 +1105,13 @@ function populateClassSelect() {
     classSelect.innerHTML = '<option value="">-- Sélectionner une classe --</option>';
     
     var classes = [];
-    allStudentsData.forEach(function(s) {
-        if (classes.indexOf(s.class) === -1) {
-            classes.push(s.class);
-        }
-    });
+    if (Array.isArray(allStudentsData)) {
+        allStudentsData.forEach(function(s) {
+            if (s.class && classes.indexOf(s.class) === -1) {
+                classes.push(s.class);
+            }
+        });
+    }
     classes.sort();
 
     classes.forEach(function(c) {
@@ -1129,7 +1142,10 @@ function populateStudentSelect(className) {
     studentSelect.disabled = false;
     passwordInput.disabled = false;
     
-    var students = allStudentsData.filter(function(s) { return s.class === className; });
+    var students = [];
+    if (Array.isArray(allStudentsData)) {
+        students = allStudentsData.filter(function(s) { return s.class === className; });
+    }
     students.forEach(function(s) {
         var opt = document.createElement("option");
         opt.value = s.id;
