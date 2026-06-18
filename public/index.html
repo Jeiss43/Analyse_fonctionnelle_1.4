@@ -1076,6 +1076,14 @@ window.addEventListener("DOMContentLoaded", async function() {
         return;
     }
 
+    // Attacher l'écouteur de changement de classe une seule fois à l'initialisation
+    var classSelectEl = document.getElementById("class-select");
+    if (classSelectEl) {
+        classSelectEl.addEventListener("change", function() {
+            populateStudentSelect(classSelectEl.value);
+        });
+    }
+
     // ── ÉTAPE 3 : Restaurer session ───────────────────────────────────────
     if (restoreSessionState()) {
         console.log("[ESEPAC] Restauration de la session active pour :", AppState.studentName);
@@ -1190,10 +1198,6 @@ function populateClassSelect() {
         opt.textContent = c;
         opt.style.background = "#0f172a";
         classSelect.appendChild(opt);
-    });
-
-    classSelect.addEventListener("change", function() {
-        populateStudentSelect(classSelect.value);
     });
 }
 
