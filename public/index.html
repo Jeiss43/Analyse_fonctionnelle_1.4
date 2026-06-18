@@ -1270,57 +1270,6 @@ document.getElementById("btn-start").addEventListener("click", async function() 
         return;
     }
 
-// Démarrer la session de TP
-document.getElementById("btn-start").addEventListener("click", async function() {
-    var classVal = document.getElementById("class-select").value;
-    var userIdVal = document.getElementById("student-select").value;
-    var passwordVal = document.getElementById("student-password").value;
-    
-    if (!classVal || !userIdVal || !passwordVal) {
-        document.getElementById("welcome-error").innerText = "Sélectionne ta classe, ton nom et saisis ton mot de passe.";
-        return;
-    }
-
-    document.getElementById("welcome-error").innerText = "";
-    document.getElementById("btn-start").disabled = true;
-
-    if (!AppState.serverMode) {
-        document.getElementById("welcome-error").innerText = "Le serveur d'évaluation (API) est inaccessible.";
-        document.getElementById("btn-start").disabled = false;
-        return;
-    }
-
-    var loggedUser = null;
-    // Authentification
-    try {
-        var response = await fetch("/api/users", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action: "login",
-                userId: userIdVal,
-                password: passwordVal
-            })
-        });
-
-        if (!response.ok) {
-            var errData = await response.json();
-            document.getElementById("welcome-error").innerText = errData.error || "Identifiant ou mot de passe incorrect.";
-            document.getElementById("btn-start").disabled = false;
-            return;
-        }
-
-        loggedUser = await response.json();
-        AppState.studentId = loggedUser.id;
-        AppState.studentName = loggedUser.firstname + " " + loggedUser.name;
-        AppState.studentClass = loggedUser.class;
-
-    } catch (e) {
-        document.getElementById("welcome-error").innerText = "Erreur serveur lors de la connexion.";
-        document.getElementById("btn-start").disabled = false;
-        return;
-    }
-
     saveSessionState();
     initStudentDashboard();
 });
