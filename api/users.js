@@ -18,13 +18,22 @@ module.exports = async function handler(req, res) {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('id, name, firstname, class')
+        .select('id, name, firstname, classe')
         .eq('role', 'student')
-        .order('class', { ascending: true })
+        .order('classe', { ascending: true })
         .order('name', { ascending: true });
 
       if (error) throw error;
-      return res.status(200).json(data || []);
+
+      // Normaliser vers "class" pour le frontend
+      const normalized = (data || []).map(s => ({
+        id: s.id,
+        name: s.name,
+        firstname: s.firstname,
+        class: s.classe
+      }));
+
+      return res.status(200).json(normalized);
     } catch (err) {
       console.error('Erreur GET /api/users:', err.message);
       return res.status(500).json({ error: 'Erreur lors de la récupération des étudiants.' });
@@ -43,7 +52,7 @@ module.exports = async function handler(req, res) {
       try {
         const { data: user, error } = await supabase
           .from('users')
-          .select('id, name, firstname, class, password, role')
+          .select('id, name, firstname, classe, password, role')
           .eq('id', userId)
           .single();
 
@@ -56,12 +65,12 @@ module.exports = async function handler(req, res) {
           return res.status(401).json({ error: 'Mot de passe incorrect.' });
         }
 
-        // Retourne les infos utilisateur sans le mot de passe
+        // Retourne les infos utilisateur sans le mot de passe (normalisé vers class)
         return res.status(200).json({
           id: user.id,
           name: user.name,
           firstname: user.firstname,
-          class: user.class,
+          class: user.classe,
           role: user.role
         });
       } catch (err) {
@@ -79,7 +88,7 @@ module.exports = async function handler(req, res) {
         // 1. Récupérer les infos de l'étudiant ciblé
         const { data: currentUser, error: userErr } = await supabase
           .from('users')
-          .select('id, name, firstname, class')
+          .select('id, name, firstname, classe')
           .eq('id', userId)
           .single();
 
@@ -90,8 +99,8 @@ module.exports = async function handler(req, res) {
         // 2. Récupérer tous les étudiants de la même classe
         const { data: classmates, error: classErr } = await supabase
           .from('users')
-          .select('id, name, firstname, class')
-          .eq('class', currentUser.class)
+          .select('id, name, firstname, classe')
+          .eq('classe', currentUser.classe)
           .eq('role', 'student');
 
         if (classErr) throw classErr;
@@ -189,7 +198,7 @@ module.exports = async function handler(req, res) {
             id: currentUser.id,
             firstname: currentUser.firstname,
             name: currentUser.name,
-            class: currentUser.class
+            class: currentUser.classe
           },
           ranking: rankingList,
           history: history,
