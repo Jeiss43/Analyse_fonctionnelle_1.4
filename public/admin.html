@@ -460,13 +460,14 @@
             <div class="panel" style="width: 100%;">
                 <h3>👥 Suivi Individuel</h3>
                 
-                <div class="search-row" style="display:flex; gap:1rem; align-items:center;">
-                    <input type="text" id="search-student" placeholder="Rechercher un étudiant (Nom, Prénom)..." oninput="filterStudentsTable()" style="flex:1;">
+                <div class="search-row" style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="search-student" placeholder="Rechercher un étudiant (Nom, Prénom)..." oninput="filterStudentsTable()" style="flex:1; min-width:200px;">
                     <select id="filter-class" onchange="filterStudentsTable()">
                         <option value="">Toutes les classes</option>
                     </select>
-                    <button id="btn-clear-class-sessions" class="action-btn" style="background:#f59e0b; color:white; border:none; padding:0.75rem 1rem;" onclick="handleClearClassSessions()">Effacer les sessions de la classe</button>
-                    <button id="btn-delete-class" class="action-btn" style="background:#ef4444; color:white; border:none; padding:0.75rem 1rem;" onclick="handleDeleteClass()">Supprimer la classe sélectionnée</button>
+                    <button id="btn-export-csv" class="action-btn" style="background:#10b981; color:white; border:none; padding:0.75rem 1rem; width:auto;" onclick="exportClassToCSV()">Exporter en CSV</button>
+                    <button id="btn-clear-class-sessions" class="action-btn" style="background:#f59e0b; color:white; border:none; padding:0.75rem 1rem; width:auto;" onclick="handleClearClassSessions()">Effacer les sessions de la classe</button>
+                    <button id="btn-delete-class" class="action-btn" style="background:#ef4444; color:white; border:none; padding:0.75rem 1rem; width:auto;" onclick="handleDeleteClass()">Supprimer la classe sélectionnée</button>
                 </div>
 
                 <div class="table-container">
@@ -884,6 +885,89 @@
                 tr.classList.add("hidden");
             }
         });
+    }
+
+    // Exporter en CSV les données des étudiants de la classe sélectionnée (ou toutes)
+    function exportClassToCSV() {
+        if (!apiStatsData || !apiStatsData.studentStats) {
+            alert("Aucune donnée à exporter.");
+            return;
+        }
+
+        var classVal = document.getElementById("filter-class").value;
+        var filtered = apiStatsData.studentStats;
+        if (classVal) {
+            filtered = apiStatsData.studentStats.filter(function(s) {
+                return s.class.toLowerCase() === classVal;
+            });
+        }
+
+        if (filtered.length === 0) {
+            alert("Aucun étudiant trouvé pour l'export.");
+            return;
+        }
+
+        var headers = [
+            "Classe",
+            "Nom",
+            "Prénom",
+            "Sessions jouées",
+            "Score Max",
+            "Score Moyen",
+            "Rigueur de formulation",
+            "Verbes d'État",
+            "Solution Physique",
+            "EME Manquant",
+            "Hors-Cadre",
+            "Hors-Sujet",
+            "Autres erreurs",
+            "Total erreurs"
+        ];
+
+        var csvRows = [headers.join(";")];
+
+        filtered.forEach(function(s) {
+            var totalErrors = Object.values(s.errors).reduce((a, b) => a + b, 0);
+            var row = [
+                s.class,
+                s.name,
+                s.firstname,
+                s.sessionsCount,
+                s.maxScore,
+                s.avgScore,
+                s.errors.rigueur_formulation || 0,
+                s.errors.verbe_etat || 0,
+                s.errors.solution_physique || 0,
+                s.errors.manque_eme || 0,
+                s.errors.hors_cadre_usage || 0,
+                s.errors.hors_sujet || 0,
+                s.errors.autre_incorrect || 0,
+                totalErrors
+            ];
+            
+            var escapedRow = row.map(function(val) {
+                var str = "" + val;
+                str = str.replace(/"/g, '""');
+                return '"' + str + '"';
+            });
+            csvRows.push(escapedRow.join(";"));
+        });
+
+        var csvContent = "\uFEFF" + csvRows.join("\n");
+        var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        var link = document.createElement("a");
+        var url = URL.createObjectURL(blob);
+        
+        var dateStr = new Date().toLocaleDateString("fr-FR").replace(/\//g, "-");
+        var classNameClean = classVal ? classVal.replace(/\s+/g, "_") : "Toutes_les_classes";
+        var fileName = "Export_AF_" + classNameClean + "_" + dateStr + ".csv";
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", fileName);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     // Modale Détails Étudiant

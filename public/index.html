@@ -2687,16 +2687,6 @@ function downloadPDFReport() {
                         </td>
                     </tr>
                 </table>
-                
-                <!-- Recommandations expert session -->
-                ${sessionConseils.length > 0 ? `
-                <div style="border: 1px solid #cbd5e1; background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.5;">
-                    <strong style="color:#475569; display:block; margin-bottom: 5px;">💡 Conseils Pédagogiques de l'Expert (pour aller plus loin) :</strong>
-                    <ul style="margin: 0; padding-left: 15px; color: #334155;">
-                        ${sessionConseils.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
-                    </ul>
-                </div>
-                ` : ''}
             </div>
 
             <!-- SECTION 2 : BILAN GLOBAL DES SESSIONS -->
