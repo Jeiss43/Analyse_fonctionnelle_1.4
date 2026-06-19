@@ -1109,8 +1109,10 @@ async function detectServerWithRetry() {
     for (var attempt = 1; attempt <= 3; attempt++) {
         try {
             var controller = new AbortController();
-            var timeoutId  = setTimeout(function() { controller.abort(); }, 6000); // 6s par tentative
-            var res = await fetch("/api/evaluate", { method: 'OPTIONS', signal: controller.signal });
+            // 25s pour le premier essai (cold start Vercel), puis 10s
+            var timeoutDuration = attempt === 1 ? 25000 : 10000;
+            var timeoutId  = setTimeout(function() { controller.abort(); }, timeoutDuration);
+            var res = await fetch("/api/users", { method: 'GET', signal: controller.signal });
             clearTimeout(timeoutId);
             if (res.ok || res.status === 200) return true;
         } catch(e) {
@@ -1126,8 +1128,10 @@ async function loadStudentsListWithRetry() {
     for (var attempt = 1; attempt <= 3; attempt++) {
         try {
             var controller = new AbortController();
-            var timeoutId  = setTimeout(function() { controller.abort(); }, 8000);
-            var res = await fetch("/api/users", { signal: controller.signal });
+            // 25s pour le premier essai (cold start Vercel), puis 10s
+            var timeoutDuration = attempt === 1 ? 25000 : 10000;
+            var timeoutId  = setTimeout(function() { controller.abort(); }, timeoutDuration);
+            var res = await fetch("/api/users", { method: 'GET', signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (!res.ok) {
@@ -1558,7 +1562,6 @@ async function initStudentDashboard() {
         document.getElementById("welcome-error").innerText = "Erreur Dashboard : " + e.message;
     }
 }
-});
 
 // Lancer le TP depuis le dashboard étudiant
 document.getElementById("btn-start-tp").addEventListener("click", function() {
