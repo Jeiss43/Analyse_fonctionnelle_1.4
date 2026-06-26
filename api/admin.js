@@ -152,14 +152,20 @@ module.exports = async function handler(req, res) {
       }
 
       try {
-        // 1. Récupérer les sessions de l'étudiant
+        // 1. Récupérer les sessions de l'étudiant (utilisation de la colonne 'date' existante)
         const { data: sessions, error: sessErr } = await supabase
           .from('sessions')
-          .select('id, level, score, created_at')
+          .select('id, level, score, date')
           .eq('user_id', userId)
-          .order('created_at', { ascending: false });
+          .order('date', { ascending: false });
 
         if (sessErr) throw sessErr;
+
+        // Normalisation pour le frontend qui attend 'created_at'
+        const normalizedSessions = (sessions || []).map(s => ({
+          ...s,
+          created_at: s.date
+        }));
 
         let logs = [];
         if (sessions && sessions.length > 0) {
@@ -173,7 +179,7 @@ module.exports = async function handler(req, res) {
           logs = logsData;
         }
 
-        return res.status(200).json({ sessions, logs });
+        return res.status(200).json({ sessions: normalizedSessions, logs });
       } catch (err) {
         console.error('Erreur getStudentDetails:', err.message);
         return res.status(500).json({ error: 'Erreur lors de la récupération du détail de l\'étudiant.' });
