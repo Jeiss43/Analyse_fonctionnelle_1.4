@@ -88,13 +88,14 @@ module.exports = async function handler(req, res) {
   }
 
   // ACTION PAR DÉFAUT : Évaluation IA
-  const { packaging, answers, level } = req.body;
+  const { packaging, answers, level, sessionIndex } = req.body;
 
   if (!packaging || !answers || !Array.isArray(answers)) {
     return res.status(400).json({ error: 'Paramètres manquants : packaging et/ou answers.' });
   }
 
   const userLevel = level === 'avance' ? 'avance' : 'debutant';
+  const productIdx = (sessionIndex !== undefined) ? parseInt(sessionIndex, 10) : 0;
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -113,23 +114,35 @@ Règles de notation selon le niveau de l'étudiant :
 NIVEAU DÉBUTANT :
 - Indulgence sur l'omission de l'objet : Si l'élève écrit une fonction logique avec verbe d'action + EME mais sans l'objet direct (ex: "Protéger des chocs" au lieu de "Protéger le contenu des chocs"), note-la CORRECTE. Dans le commentaire ("comm"), suggère simplement de préciser l'objet.
 - Adverbes subjectifs (bien, facilement, efficacement...) : Note la fonction comme CORRECTE, mais ajoute dans "comm" une remarque pédagogique indiquant qu'il faut éviter ces termes subjectifs pour être plus rigoureux.
-- Verbe faible "Permettre de..." : Note la fonction comme CORRECTE, mais suggère dans "comm" de privilégier un verbe d'action direct si possible.
+- Verbe faible "Permettre de..." : Note la fonction comme CORRECTE. Cependant, invite bienveillamment dans "comm" à retirer "Permettre de" pour aller droit au but (ex: préférer "Contenir le produit" à "Permettre de contenir le produit").
+- Verbe "faciliter" : Note la fonction comme CORRECTE (ex: "Faciliter la prise en main").
+- Verbe "optimiser" : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" qu'optimiser relève du travail de conception interne (ingénieur) et non du besoin exprimé par l'utilisateur extérieur. Propose une reformulation fonctionnelle dans "sugg" (ex: préférer "S'adapter au système de guidage" plutôt que "Optimiser le passage machine").
+- Utilisation du verbe "empêcher" (y compris ses variantes mal orthographiées comme "empécher" ou "empecher") : Note la fonction comme CORRECTE. Cependant, tu dois obligatoirement ajouter dans "comm" une incitation bienveillante à formuler de manière plus positive et constructive avec un exemple de reformulation personnalisé (ex: s'il écrit "Empécher l'oxygène de dégrader la crème", suggère de préférer "Isoler la crème de l'oxygène" ou "Préserver la crème de l'oxygène"). S'il y a en plus une faute d'orthographe sur le verbe, signale-la gentiment dans le même commentaire.
+- Règle progressive des truismes et exigence de précision (Propositions 1 & 4) :
+  * Avant le 4ème produit (index du produit < 3) : Sois indulgent et accepte comme CORRECTE les fonctions de base évidentes/génériques ("Contenir le produit", "Protéger le produit", "Protéger des chocs", "Informer le consommateur").
+  * À partir du 4ème produit (index du produit >= 3) : Les truismes évidents sans caractérisation ("Contenir le produit", "Protéger des chocs", "Informer le consommateur") ne sont plus tolérés. Note-les comme PARTIELLEMENT CORRECTE avec le commentaire : « Cette fonction générique (truisme) est trop évidente pour ce stade de l'exercice. À partir du 4ème produit, cherche des fonctions spécifiques à ce packaging (ex: conserver les ferments, s'adapter à la prise en main...). » De même, toute fonction de protection ou d'information trop générique doit être notée PARTIELLEMENT CORRECTE en demandant à l'élève d'apporter de la précision (ex: préciser de quel agresseur ou de quelle information il s'agit). Attribue la valeur "rigueur_formulation" à "error_type".
 - Écarts méthodologiques de formulation : Pour les écarts décrits ci-dessous (Fonctions valises, Verbes d'action faibles, Marketing subjectif, Action subie), note la fonction comme PARTIELLEMENT CORRECTE. Explique le problème dans "comm" et propose une reformulation dans "sugg".
 
 NIVEAU AVANCÉ :
 - Rigueur académique sur l'objet direct : L'absence de l'objet direct (ex: "Protéger des chocs") doit être notée PARTIELLEMENT CORRECTE.
 - Adverbes subjectifs (bien, facilement, efficacement...) : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que l'utilisation de termes subjectifs nuit à la rigueur technique du cahier des charges.
-- Verbe faible "Permettre de..." : Note la fonction comme PARTIELLEMENT CORRECTE (sauf s'il s'agit d'exprimer une fonction d'usage utilisateur indispensable comme "Permettre à l'utilisateur de..."). Explique dans "comm" qu'il faut utiliser un verbe d'action direct.
+- Verbe faible "Permettre de..." : Note la fonction comme PARTIELLEMENT CORRECTE (sauf s'il s'agit d'exprimer une liberté ou ergonomie laissée directement à un sujet extérieur, ex: "Permettre à l'utilisateur de verser..."). Dans les autres cas, explique dans "comm" qu'il faut utiliser le verbe d'action direct et attribue "rigueur_formulation" à "error_type".
+- Verbe "faciliter" : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que ce verbe est trop subjectif/flou et qu'il faut utiliser un verbe d'action plus précis, technique et mesurable (ex: préférer "S'adapter au format des palettes standard" au lieu de "Faciliter le stockage", ou "Limiter l'effort d'ouverture" au lieu de "Faciliter l'ouverture"). Attribue "rigueur_formulation" à "error_type".
+- Verbe "optimiser" : Note la fonction comme INCORRECTE. Explique dans "comm" qu'optimiser est un objectif de conception interne (B.E.) ou technico-économique, et non une fonction de service d'usage rendu aux éléments extérieurs. Attribue "rigueur_formulation" à "error_type".
+- Utilisation du verbe "empêcher" (y compris ses variantes mal orthographiées comme "empécher" ou "empecher") : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que ce verbe exprime un évitement ou une contrainte passive et qu'il faut formuler le service rendu de manière positive (ex: "Contenir le produit" ou "Isoler le produit de..."). Attribue la valeur "rigueur_formulation" à "error_type".
+- Règle progressive des truismes et exigence de précision (Propositions 1 & 4) :
+  * Avant le 3ème produit (index du produit < 2) : Les fonctions évidentes ou génériques sont tolérées comme CORRECTE.
+  * À partir du 3ème produit (index du produit >= 2) : Les truismes évidents sans caractérisation ("Contenir le produit", "Protéger des chocs", "Informer le consommateur") sont interdits. Note-les comme INCORRECTE avec le commentaire : « Cette fonction générique est trop évidente pour un niveau avancé. À partir du 3ème produit, cherche des fonctions spécifiques à ce packaging. » De plus, les fonctions de protection ou d'information trop vagues (ex: "Protéger le produit", "Informer") doivent être notées PARTIELLEMENT CORRECTE en exigeant la caractérisation précise de l'agresseur ou du besoin (ex: préciser de quel agresseur ou de quelle information il s'agit). Attribue la valeur "rigueur_formulation" à "error_type".
 - Écarts méthodologiques de formulation : Pour les écarts décrits ci-dessous (Fonctions valises, Verbes d'action faibles, Marketing subjectif, Action subie), note la fonction comme INCORRECTE.
 
 Définition des écarts méthodologiques de formulation :
 1. Fonctions "Valises" : Fonctions trop générales sans cible/agresseur extérieur précis (ex: "Protéger le produit" au lieu de "Protéger le produit contre la lumière").
-2. Verbes d'action faibles de nominalisation : Verbes généraux servant de support à un nom (ex: "Assurer la conservation" au lieu de "Conserver" ou "Faire barrière", "Garantir l'étanchéité" au lieu de "Empêcher le produit de s'échapper").
+2. Verbes d'action faibles de nominalisation : Verbes généraux servant de support à un nom (ex: "Assurer la conservation" au lieu de "Conserver" ou "Faire barrière", "Garantir l'étanchéité" au lieu de "Contenir le produit").
 3. Marketing subjectif : Utilisation de verbes d'action subjectifs ou psychologiques (ex: "Séduire le client", "Donner envie d'acheter" au lieu de "Valoriser l'image de marque").
 4. Action subie vs action active : Formulations passives ou décrivant un mouvement interne mécanique subi par l'emballage (ex: "Être empilé" au lieu de "Supporter l'empilement", "Passer dans la machine" au lieu de "S'adapter au système de guidage").
 
 Règles communes (Débutant & Avancé) :
-- TOUJOURS COMPTER FAUX LES TOURNURES NÉGATIVES : Les propositions formulées avec une négation (ex: "Ne pas laisser passer la lumière", "Ne pas fuir") doivent être notées impérativement comme INCORRECTE pour tous les niveaux. Explique dans "comm" qu'une fonction doit toujours s'exprimer de manière positive et active, et suggère une formulation affirmative (ex: "Faire barrière à la lumière", "Empêcher le produit de s'échapper").
+- TOUJOURS COMPTER FAUX LES TOURNURES NÉGATIVES : Les propositions formulées avec une négation (ex: "Ne pas laisser passer la lumière", "Ne pas fuir") doivent être notées impérativement comme INCORRECTE pour tous les niveaux. Explique dans "comm" qu'une fonction doit toujours s'exprimer de manière positive et active, et suggère une formulation affirmative (ex: "Faire barrière à la lumière", "Contenir le produit").
 - SUJET IMPLICITE DE L'EMBALLAGE (Règle d'or) : Il est STRICTEMENT INTERDIT d'exiger de l'étudiant qu'il mentionne explicitement le mot "emballage" ou "bouteille" ou "système" (ex: NE PAS suggérer "Permettre à l'emballage de supporter..." au lieu de "Supporter..."). Le sujet qui réalise la fonction est implicitement l'emballage. Des formulations comme "Supporter un remplissage à chaud" ou "Contenir le lait" sont entièrement correctes sur ce point.
 - EXCEPTION SUR LES COMPOSANTS PHYSIQUES : En règle générale, citer un composant physique de l'emballage lui-même (bouchon, carton, film, opercule...) ou un matériau (PET, verre...) ou un procédé est interdit et noté INCORRECTE. EXCEPTION UNIQUE : Si le nom de l'emballage à analyser (fourni dans le sujet, ex: "Pot de yaourt en polystyrène avec opercule aluminium") contient explicitement un composant ou un matériau, l'étudiant est autorisé à y faire référence dans ses fonctions (ex: citer l'opercule ou le pot).
 - FONCTION DE SERVICE (vs Action interne) : La fonction doit décrire un service rendu à un élément du milieu extérieur (utilisateur, produit contenu, logistique) et non une action mécanique interne au système.
@@ -141,7 +154,8 @@ ATTENTION : citer le PRODUIT CONTENU (ex: le gruyère, le lait, le riz, les hari
 - Règle des impossibilités physiques ou hors sujet : Si l'étudiant propose une fonction techniquement impossible pour l'emballage donné (ex: "Permettre de voir le contenu" pour une canette en alu opaque) ou complètement hors sujet, note-la INCORRECTE. Explique la contrainte physique ou le problème de pertinence dans "comm". Dans "sugg", mets "Non applicable" ou une reformulation théoriquement correcte.
 - Règle des verbes d'état : L'usage des verbes d'état principaux (être, avoir, paraître, sembler, devenir) dans les propositions de l'étudiant doit impérativement être noté comme INCORRECTE.
 - Règle Environnement, Fin de vie & Économie : Si l'étudiant parle de fin de vie, de recyclage, de tri, ou cherche à optimiser le coût ou le poids/matière par souci économique ou environnemental (ex: "Minimiser le coût de fabrication", "Réduire le poids de plastique pour la planète"), note-le impérativement comme INCORRECTE. Explique clairement dans "comm" : "Dans un projet packaging global, les aspects fonctionnels, économiques et environnementaux sont traités séparément dans trois matrices distinctes (fonctionnelle, économique et environnementale) puis confrontés. Injecter des critères économiques ou environnementaux dans l'analyse fonctionnelle d'usage fausserait l'analyse globale."
-- Champ suggestion ("sugg") : Remplis ce champ si le statut est PARTIELLEMENT CORRECTE ou INCORRECTE, OU s'il y a des corrections orthographiques/grammaticales sur une fonction CORRECTE. Si la fonction est parfaitement CORRECTE sans aucune faute, laisse "sugg" vide (chaîne vide ""). Il doit contenir UNIQUEMENT la proposition de reformulation correcte de la fonction, et JAMAIS de conseils méthodologiques ou de remarques (ces derniers vont exclusivement dans le champ "comm").
+- Champ suggestion ("sugg") et cohérence du sens : Remplis systématiquement ce champ si le statut est PARTIELLEMENT CORRECTE ou INCORRECTE, OU s'il y a des corrections orthographiques/grammaticales sur une fonction CORRECTE. Si la fonction est parfaitement CORRECTE sans aucune faute, laisse "sugg" vide (chaîne vide ""). Il doit contenir UNIQUEMENT la proposition de reformulation correcte de la fonction, et JAMAIS de conseils méthodologiques ou de remarques (ces derniers vont exclusivement dans le champ "comm").
+IMPORTANT : La suggestion de reformulation doit obligatoirement avoir un sens très similaire à l'intention d'origine de l'étudiant (ex: s'il écrit "Empêcher le produit de fuir", suggère "Contenir le produit" ou "Assurer l'étanchéité", ne propose pas une fonction hors sujet comme "Protéger des chocs").
 - Conseiller : Proposer 2 à 3 fonctions pertinentes manquantes dans "conseils" (hors recyclage/fin de vie/critères économiques).
 - Champ "error_type" : Si une fonction est CORRECTE malgré de légères fautes d'orthographe ou d'article, mets "none".
 
@@ -160,6 +174,7 @@ CONSIGNE DE CONCISION STRICTE : Fais des commentaires d'évaluation très courts
 
   const prompt = `Sujet : ${packaging}
 Niveau de l'exercice : ${userLevel === 'debutant' ? 'Débutant (Rappels de règles simples)' : 'Avancé (Perspectives : Conservation, Logistique, Usage, Information)'}
+Numéro du produit analysé dans la session de l'étudiant : ${productIdx + 1} (sur 10)
 
 Fonctions formulées par l'étudiant :
 ${answersText}`;

@@ -667,7 +667,7 @@
 
             <!-- Action principale -->
             <div style="display:flex; flex-direction:column; gap:1rem; align-items:center; margin-top:0.5rem;">
-                <button id="btn-start-tp" class="action-btn" style="padding:1.2rem 2.5rem; font-size:1.2rem; border-radius:16px;">🚀 Démarrer l'entraînement (5 emballages + Bonus)</button>
+                <button id="btn-start-tp" class="action-btn" style="padding:1.2rem 2.5rem; font-size:1.2rem; border-radius:16px;">🚀 Démarrer l'entraînement (5 emballages · Super Bonus +150 pts !)</button>
                 <button id="btn-logout" class="action-btn btn-secondary" style="max-width:200px; padding:0.5rem 1rem; font-size:0.9rem;">Se déconnecter</button>
             </div>
 
@@ -685,7 +685,7 @@
             <div class="welcome-card">
                 <h3>Bienvenue dans ton module d'entraînement !</h3>
                 <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
-                    Ce simulateur interactif te permet d'analyser des emballages variés issus de la vie réelle. Tu rédigeras le cahier des charges fonctionnel de chaque produit, et notre <strong>Expert IA</strong> évaluera la pertinence de tes propositions en temps réel. Une session d'entraînement est désormais réduite à <strong>5 emballages</strong>, et terminer la session complète te rapporte un <strong>bonus exceptionnel de progression</strong> !
+                    Ce simulateur interactif te permet d'analyser des emballages variés issus de la vie réelle. Tu rédigeras le cahier des charges fonctionnel de chaque produit, et notre <strong>Expert IA</strong> évaluera la pertinence de tes propositions en temps réel. Une session d'entraînement comporte <strong>5 emballages</strong>. Terminer la session complète te rapporte un <strong>Super Bonus exceptionnel de +150 points</strong> !
                 </p>
                 <p style="font-size:0.9rem;color:var(--primary);font-weight:700;">
                     Objectif : S'abstraire de la solution physique pour exprimer le besoin fondamental.
@@ -742,12 +742,15 @@
         <header>
             <img class="logo-img" src="Logo_Esepac_2021.png" alt="Logo ESEPAC">
             <h1 id="exercise-title">Exercice en cours</h1>
-            <div class="session-header">
+            <div class="session-header" style="margin-bottom:0.5rem;">
                 <div style="font-size:0.9rem;font-weight:700;">PRODUIT <span id="sess-num">1</span> / 5</div>
                 <div class="progress-container">
                     <div id="sess-progress" class="progress-bar"></div>
                 </div>
                 <div style="font-size:0.9rem;font-weight:700;color:var(--primary);"><span id="sess-score">0</span> PTS</div>
+            </div>
+            <div id="session-bonus-reminder" style="text-align: center; font-size: 0.85rem; color: #a5b4fc; margin-bottom: 1.5rem; font-weight: 600; background: rgba(79, 70, 229, 0.1); border: 1px dashed rgba(79, 70, 229, 0.3); padding: 0.4rem; border-radius: 8px;">
+                🎁 Complète encore <span id="sess-rem-count">5</span> analyses pour débloquer le Super Bonus (+150 pts) !
             </div>
         </header>
         <div class="content">
@@ -792,6 +795,9 @@
                 
                 <p id="validation-msg" class="validation-msg"></p>
                 <button id="btn-add-function" class="btn-add">+ Ajouter une fonction</button>
+                <div id="more-answers-incentive" style="margin-top:1rem; font-size:0.85rem; color:var(--primary); display:flex; align-items:center; gap:0.5rem; background:rgba(14,165,233,0.08); padding:0.6rem 1rem; border-radius:8px; border:1px solid rgba(14,165,233,0.15); line-height:1.4;">
+                    💡 <strong>Conseil de l'Expert :</strong> N'hésite pas à proposer <strong>plus de 3 réponses</strong> ! Plus tu rédiges de fonctions correctes (jusqu'à 8), plus ton score augmente rapidement (+20 ou +30 pts par fonction validée).
+                </div>
             </div>
 
             <button id="btn-submit" class="action-btn">Soumettre à l'Expert IA</button>
@@ -843,7 +849,10 @@
                 <div class="bilan-score-card">
                     <div class="bilan-score-title">Score Obtenu</div>
                     <div id="bilan-score-value" class="bilan-score-value">0</div>
-                    <div id="bilan-summary-text" style="color:#a5b4fc;font-size:1rem;font-weight:600;">...</div>
+                    <div id="bilan-bonus-badge" style="display:none; background:linear-gradient(90deg, #4f46e5, #0ea5e9); color:white; font-size:0.85rem; font-weight:700; padding:0.35rem 0.85rem; border-radius:99px; margin-top:0.5rem; display:inline-block;">
+                        🎁 Super Bonus inclus (+150 pts) !
+                    </div>
+                    <div id="bilan-summary-text" style="color:#a5b4fc;font-size:1rem;font-weight:600;margin-top:0.5rem;">...</div>
                 </div>
 
                 <div class="success-gauge-container">
@@ -943,37 +952,47 @@
 // CATALOGUE DES PACKAGINGS
 // ================================================================
 var PACKAGING_CATALOG = [
-    "Boîte de conserve cylindrique en métal (haricots verts 400 g)",
-    "Étui carton plié pour pâtes alimentaires (500 g)",
-    "Sachet de riz en polypropylène bi-orienté (1 kg)",
-    "Barquette thermoformée en PET pour carottes râpées (200 g)",
-    "Sachet plastique de gruyère râpé sous atmosphère modifiée (200 g)",
-    "Brique de lait UHT en carton multicouche avec bouchon vissant (1 L)",
-    "Pot de yaourt en polystyrène avec opercule aluminium (125 g)",
-    "Bouteille d'eau minérale en PET avec bouchon vissant (1,5 L)",
-    "Coque thermoformée en PET pour oeuf de Pâques en chocolat (100 g)",
-    "Flacon de ketchup souple en PEHD avec bouchon doseur (560 g)",
-    "Barquette thermoformée de jambon cuit sous atmosphère modifiée (4 tranches)",
-    "Filet de pommes de terre en polypropylène avec étiquette carton (2 kg)",
-    "Boîte de biscuits en métal avec couvercle à friction (400 g)",
-    "Pot de confiture en verre avec capsule twist-off (370 g)",
-    "Brick de soupe en carton aseptique avec bouchon vissant (1 L)",
-    "Sachet de café moulu sous vide en complexe aluminium/plastique (250 g)",
-    "Sachet de compote en film complexe type doypack avec bouchon vissant (90 g)",
-    "Filet d'oranges en résille plastique avec étiquette carton (1 kg)",
-    "Boîte de capsules café à usage unique en aluminium (x10)",
-    "Canette de boisson gazeuse en aluminium (33 cL)",
-    "Bouteille de vin en verre avec bouchon liège et capsule (75 cL)",
-    "Tube de dentifrice en plastique avec bouchon à charnière (75 mL)",
-    "Tube pour pastilles effervescentes en PEHD avec bouchon étanche (20 pastilles)",
-    "Flacon de gel hydro-alcoolique en PEHD avec pompe doseuse (300 mL)",
-    "Flacon de shampoing en PEHD avec bouchon à clapet (250 mL)",
-    "Bombe aérosol de déodorant en aluminium avec valve (150 mL)",
-    "Boîte métallique à ouverture facile pour thon en conserve (185 g)",
-    "Tube de crème solaire en aluminium avec bouchon vissant (100 mL)",
-    "Bidon de lessive liquide en PEHD avec bouchon doseur (3 L)",
-    "Flacon pulvérisateur de produit ménager en PET (500 mL)",
-    "Boîte de cotons-tiges en carton recyclé (200 unités)"
+    "Boîte de conserve en métal pour haricots verts",
+    "Étui carton pour pâtes alimentaires",
+    "Sachet de riz",
+    "Barquette pour carottes râpées",
+    "Sachet de gruyère râpé sous atmosphère modifiée",
+    "Brique de lait UHT de 1 L",
+    "Pot de yaourt",
+    "Bouteille d'eau minérale (1,5 L)",
+    "Coque pour oeuf de Pâques en chocolat",
+    "Flacon de ketchup souple",
+    "Barquette de jambon cuit sous atmosphère modifiée",
+    "Filet de pommes de terre avec étiquette carton",
+    "Boîte de biscuits en métal avec couvercle",
+    "Pot de confiture en verre",
+    "Brick de soupe en carton",
+    "Sachet de café moulu sous vide",
+    "Sachet de compote en film complexe",
+    "Filet d'oranges en résille plastique avec étiquette carton",
+    "Boîte de capsules café",
+    "Canette de boisson gazeuse",
+    "Bouteille de vin",
+    "Tube de dentifrice",
+    "Tube pour pastilles effervescentes",
+    "Flacon de gel hydro-alcoolique avec pompe doseuse",
+    "Flacon de shampoing",
+    "Bombe aérosol de déodorant",
+    "Boîte métallique à ouverture facile pour thon en conserve",
+    "Tube de crème solaire en aluminium",
+    "Bidon de lessive liquide avec bouchon doseur",
+    "Flacon pulvérisateur de produit ménager (500 mL)",
+    "Boîte de cotons-tiges en carton",
+    "Barquette pour viande hachée sous atmosphère protégée",
+    "Pot de pâte à tartiner en verre",
+    "Sachet souple \"Doypack\" pour fruits secs",
+    "Boîte de céréales en carton",
+    "Bouteille d'huile végétale",
+    "Sachet de chips sous azote",
+    "Flacon pompe de savon liquide pour les mains",
+    "Boîte de lingettes nettoyantes",
+    "Boîte à pizza en carton ondulé",
+    "Gobelet de café à emporter"
 ];
 
 // ================================================================
@@ -1618,6 +1637,19 @@ function loadPackExercise() {
     document.getElementById("sess-progress").style.width = ((AppState.sessionIndex + 1) / MAX_SESSION_PACKS * 100) + "%";
     document.getElementById("sess-score").textContent = AppState.sessionScore;
 
+    // Mise à jour de l'incitation au bonus de session
+    var remCount = MAX_SESSION_PACKS - (AppState.sessionIndex);
+    var reminderEl = document.getElementById("session-bonus-reminder");
+    if (reminderEl) {
+        if (remCount > 1) {
+            reminderEl.innerHTML = `🎁 Complète encore <strong>${remCount}</strong> analyses d'emballages pour obtenir le Super Bonus de session (+150 pts) !`;
+        } else if (remCount === 1) {
+            reminderEl.innerHTML = `🔥 <strong>Dernier produit !</strong> Plus qu'une analyse avant de décrocher ton Super Bonus (+150 pts) !`;
+        } else {
+            reminderEl.innerHTML = `🎉 <strong>Félicitations !</strong> Tu as complété toutes les analyses. Super Bonus de +150 pts validé !`;
+        }
+    }
+
     // Rendre les règles d'évaluation visibles par niveau
     var rulesBox = document.getElementById("rules-box");
     var helpBox = document.getElementById("help-box");
@@ -1806,7 +1838,7 @@ async function callEvaluationAPI(packaging, answers) {
             var res = await fetch("/api/evaluate", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ packaging: packaging, answers: answers, level: AppState.level }),
+                body: JSON.stringify({ packaging: packaging, answers: answers, level: AppState.level, sessionIndex: AppState.sessionIndex }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
@@ -1821,10 +1853,10 @@ async function callEvaluationAPI(packaging, answers) {
         }
     } else {
         // Exécuter l'appel client direct (clé locale)
-        return await callGeminiDirect(packaging, answers);
+        return await callGeminiDirect(packaging, answers, AppState.sessionIndex);
     }
 }
-async function callGeminiDirect(packaging, answers) {
+async function callGeminiDirect(packaging, answers, sessionIndex) {
     var answersText = answers.map((ans, i) => `${i + 1}. ${ans}`).join('\n');
     var levelRules = "";
     if (AppState.level === 'debutant') {
@@ -1841,23 +1873,35 @@ Règles de notation selon le niveau de l'étudiant :
 NIVEAU DÉBUTANT :
 - Indulgence sur l'omission de l'objet : Si l'élève écrit une fonction logique avec verbe d'action + EME mais sans l'objet direct (ex: "Protéger des chocs" au lieu de "Protéger le contenu des chocs"), note-la CORRECTE. Dans le commentaire ("comm"), suggère simplement de préciser l'objet.
 - Adverbes subjectifs (bien, facilement, efficacement...) : Note la fonction comme CORRECTE, mais ajoute dans "comm" une remarque pédagogique indiquant qu'il faut éviter ces termes subjectifs pour être plus rigoureux.
-- Verbe faible "Permettre de..." : Note la fonction comme CORRECTE, mais suggère dans "comm" de privilégier un verbe d'action direct si possible.
+- Verbe faible "Permettre de..." : Note la fonction comme CORRECTE. Cependant, invite bienveillamment dans "comm" à retirer "Permettre de" pour aller droit au but (ex: préférer "Contenir le produit" à "Permettre de contenir le produit").
+- Verbe "faciliter" : Note la fonction comme CORRECTE (ex: "Faciliter la prise en main").
+- Verbe "optimiser" : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" qu'optimiser relève du travail de conception interne (ingénieur) et non du besoin exprimé par l'utilisateur extérieur. Propose une reformulation fonctionnelle dans "sugg" (ex: préférer "S'adapter au système de guidage" plutôt que "Optimiser le passage machine").
+- Utilisation du verbe "empêcher" (y compris ses variantes mal orthographiées comme "empécher" ou "empecher") : Note la fonction comme CORRECTE. Cependant, tu dois obligatoirement ajouter dans "comm" une incitation bienveillante à formuler de manière plus positive et constructive avec un exemple de reformulation personnalisé (ex: s'il écrit "Empécher l'oxygène de dégrader la crème", suggère de préférer "Isoler la crème de l'oxygène" ou "Préserver la crème de l'oxygène"). S'il y a en plus une faute d'orthographe sur le verbe, signale-la gentiment dans le même commentaire.
+- Règle progressive des truismes et exigence de précision (Propositions 1 & 4) :
+  * Avant le 4ème produit (index du produit < 3) : Sois indulgent et accepte comme CORRECTE les fonctions de base évidentes/génériques ("Contenir le produit", "Protéger le produit", "Protéger des chocs", "Informer le consommateur").
+  * À partir du 4ème produit (index du produit >= 3) : Les truismes évidents sans caractérisation ("Contenir le produit", "Protéger des chocs", "Informer le consommateur") ne sont plus tolérés. Note-les comme PARTIELLEMENT CORRECTE avec le commentaire : « Cette fonction générique (truisme) est trop évidente pour ce stade de l'exercice. À partir du 4ème produit, cherche des fonctions spécifiques à ce packaging (ex: conserver les ferments, s'adapter à la prise en main...). » De même, toute fonction de protection ou d'information trop générique doit être notée PARTIELLEMENT CORRECTE en demandant à l'élève d'apporter de la précision (ex: préciser de quel agresseur ou de quelle information il s'agit). Attribue la valeur "rigueur_formulation" à "error_type".
 - Écarts méthodologiques de formulation : Pour les écarts décrits ci-dessous (Fonctions valises, Verbes d'action faibles, Marketing subjectif, Action subie), note la fonction comme PARTIELLEMENT CORRECTE. Explique le problème dans "comm" et propose une reformulation dans "sugg".
 
 NIVEAU AVANCÉ :
 - Rigueur académique sur l'objet direct : L'absence de l'objet direct (ex: "Protéger des chocs") doit être notée PARTIELLEMENT CORRECTE.
 - Adverbes subjectifs (bien, facilement, efficacement...) : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que l'utilisation de termes subjectifs nuit à la rigueur technique du cahier des charges.
-- Verbe faible "Permettre de..." : Note la fonction comme PARTIELLEMENT CORRECTE (sauf s'il s'agit d'exprimer une fonction d'usage utilisateur indispensable comme "Permettre à l'utilisateur de..."). Explique dans "comm" qu'il faut utiliser un verbe d'action direct.
+- Verbe faible "Permettre de..." : Note la fonction comme PARTIELLEMENT CORRECTE (sauf s'il s'agit d'exprimer une liberté ou ergonomie laissée directement à un sujet extérieur, ex: "Permettre à l'utilisateur de verser..."). Dans les autres cas, explique dans "comm" qu'il faut utiliser le verbe d'action direct et attribue "rigueur_formulation" à "error_type".
+- Verbe "faciliter" : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que ce verbe est trop subjectif/flou et qu'il faut utiliser un verbe d'action plus précis, technique et mesurable (ex: préférer "S'adapter au format des palettes standard" au lieu de "Faciliter le stockage", ou "Limiter l'effort d'ouverture" au lieu de "Faciliter l'ouverture"). Attribue "rigueur_formulation" à "error_type".
+- Verbe "optimiser" : Note la fonction comme INCORRECTE. Explique dans "comm" qu'optimiser est un objectif de conception interne (B.E.) ou technico-économique, et non une fonction de service d'usage rendu aux éléments extérieurs. Attribue "rigueur_formulation" à "error_type".
+- Utilisation du verbe "empêcher" (y compris ses variantes mal orthographiées comme "empécher" ou "empecher") : Note la fonction comme PARTIELLEMENT CORRECTE. Explique dans "comm" que ce verbe exprime un évitement ou une contrainte passive et qu'il faut formuler le service rendu de manière positive (ex: "Contenir le produit" ou "Isoler le produit de..."). Attribue la valeur "rigueur_formulation" à "error_type".
+- Règle progressive des truismes et exigence de précision (Propositions 1 & 4) :
+  * Avant le 3ème produit (index du produit < 2) : Les fonctions évidentes ou génériques sont tolérées comme CORRECTE.
+  * À partir du 3ème produit (index du produit >= 2) : Les truismes évidents sans caractérisation ("Contenir le produit", "Protéger des chocs", "Informer le consommateur") sont interdits. Note-les comme INCORRECTE avec le commentaire : « Cette fonction générique est trop évidente pour un niveau avancé. À partir du 3ème produit, cherche des fonctions spécifiques à ce packaging. » De plus, les fonctions de protection ou d'information trop vagues (ex: "Protéger le produit", "Informer") doivent être notées PARTIELLEMENT CORRECTE en exigeant la caractérisation précise de l'agresseur ou du besoin (ex: préciser de quel agresseur ou de quelle information il s'agit). Attribue la valeur "rigueur_formulation" à "error_type".
 - Écarts méthodologiques de formulation : Pour les écarts décrits ci-dessous (Fonctions valises, Verbes d'action faibles, Marketing subjectif, Action subie), note la fonction comme INCORRECTE.
 
 Définition des écarts méthodologiques de formulation :
 1. Fonctions "Valises" : Fonctions trop générales sans cible/agresseur extérieur précis (ex: "Protéger le produit" au lieu de "Protéger le produit contre la lumière").
-2. Verbes d'action faibles de nominalisation : Verbes généraux servant de support à un nom (ex: "Assurer la conservation" au lieu de "Conserver" ou "Faire barrière", "Garantir l'étanchéité" au lieu de "Empêcher le produit de s'échapper").
+2. Verbes d'action faibles de nominalisation : Verbes généraux servant de support à un nom (ex: "Assurer la conservation" au lieu de "Conserver" ou "Faire barrière", "Garantir l'étanchéité" au lieu de "Contenir le produit").
 3. Marketing subjectif : Utilisation de verbes d'action subjectifs ou psychologiques (ex: "Séduire le client", "Donner envie d'acheter" au lieu de "Valoriser l'image de marque").
 4. Action subie vs action active : Formulations passives ou décrivant un mouvement interne mécanique subi par l'emballage (ex: "Être empilé" au lieu de "Supporter l'empilement", "Passer dans la machine" au lieu de "S'adapter au système de guidage").
 
 Règles communes (Débutant & Avancé) :
-- TOUJOURS COMPTER FAUX LES TOURNURES NÉGATIVES : Les propositions formulées avec une négation (ex: "Ne pas laisser passer la lumière", "Ne pas fuir") doivent être notées impérativement comme INCORRECTE pour tous les niveaux. Explique dans "comm" qu'une fonction doit toujours s'exprimer de manière positive et active, et suggère une formulation affirmative (ex: "Faire barrière à la lumière", "Empêcher le produit de s'échapper").
+- TOUJOURS COMPTER FAUX LES TOURNURES NÉGATIVES : Les propositions formulées avec une négation (ex: "Ne pas laisser passer la lumière", "Ne pas fuir") doivent être notées impérativement comme INCORRECTE pour tous les niveaux. Explique dans "comm" qu'une fonction doit toujours s'exprimer de manière positive et active, et suggère une formulation affirmative (ex: "Faire barrière à la lumière", "Contenir le produit").
 - SUJET IMPLICITE DE L'EMBALLAGE (Règle d'or) : Il est STRICTEMENT INTERDIT d'exiger de l'étudiant qu'il mentionne explicitement le mot "emballage" ou "bouteille" ou "système" (ex: NE PAS suggérer "Permettre à l'emballage de supporter..." au lieu de "Supporter..."). Le sujet qui réalise la fonction est implicitement l'emballage. Des formulations comme "Supporter un remplissage à chaud" ou "Contenir le lait" sont entièrement correctes sur ce point.
 - EXCEPTION SUR LES COMPOSANTS PHYSIQUES : En règle générale, citer un composant physique de l'emballage lui-même (bouchon, carton, film, opercule...) ou un matériau (PET, verre...) ou un procédé est interdit et noté INCORRECTE. EXCEPTION UNIQUE : Si le nom de l'emballage à analyser (fourni dans le sujet, ex: "Pot de yaourt en polystyrène avec opercule aluminium") contient explicitement un composant ou un matériau, l'étudiant est autorisé à y faire référence dans ses fonctions (ex: citer l'opercule ou le pot).
 - FONCTION DE SERVICE (vs Action interne) : La fonction doit décrire un service rendu à un élément du milieu extérieur (utilisateur, produit contenu, logistique) et non une action mécanique interne au système.
@@ -1869,7 +1913,8 @@ ATTENTION : citer le PRODUIT CONTENU (ex: le gruyère, le lait, le riz, les hari
 - Règle des impossibilités physiques ou hors sujet : Si l'étudiant propose une fonction techniquement impossible pour l'emballage donné (ex: "Permettre de voir le contenu" pour une canette en alu opaque) ou complètement hors sujet, note-la INCORRECTE. Explique la contrainte physique ou le problème de pertinence dans "comm". Dans "sugg", mets "Non applicable" ou une reformulation théoriquement correcte.
 - Règle des verbes d'état : L'usage des verbes d'état principaux (être, avoir, paraître, sembler, devenir) dans les propositions de l'étudiant doit impérativement être noté comme INCORRECTE.
 - Règle Environnement, Fin de vie & Économie : Si l'étudiant parle de fin de vie, de recyclage, de tri, ou cherche à optimiser le coût ou le poids/matière par souci économique ou environnemental (ex: "Minimiser le coût de fabrication", "Réduire le poids de plastique pour la planète"), note-le impérativement comme INCORRECTE. Explique clairement dans "comm" : "Dans un projet packaging global, les aspects fonctionnels, économiques et environnementaux sont traités séparément dans trois matrices distinctes (fonctionnelle, économique et environnementale) puis confrontés. Injecter des critères économiques ou environnementaux dans l'analyse fonctionnelle d'usage fausserait l'analyse globale."
-- Champ suggestion ("sugg") : Remplis ce champ si le statut est PARTIELLEMENT CORRECTE ou INCORRECTE, OU s'il y a des corrections orthographiques/grammaticales sur une fonction CORRECTE. Si la fonction est parfaitement CORRECTE sans aucune faute, laisse "sugg" vide (chaîne vide ""). Il doit contenir UNIQUEMENT la proposition de reformulation correcte de la fonction, et JAMAIS de conseils méthodologiques ou de remarques (ces derniers vont exclusivement dans le champ "comm").
+- Champ suggestion ("sugg") et cohérence du sens : Remplis systématiquement ce champ si le statut est PARTIELLEMENT CORRECTE ou INCORRECTE, OU s'il y a des corrections orthographiques/grammaticales sur une fonction CORRECTE. Si la fonction est parfaitement CORRECTE sans aucune faute, laisse "sugg" vide (chaîne vide ""). Il doit contenir UNIQUEMENT la proposition de reformulation correcte de la fonction, et JAMAIS de conseils méthodologiques ou de remarques (ces derniers vont exclusivement dans le champ "comm").
+IMPORTANT : La suggestion de reformulation doit obligatoirement avoir un sens très similaire à l'intention d'origine de l'étudiant (ex: s'il écrit "Empêcher le produit de fuir", suggère "Contenir le produit" ou "Assurer l'étanchéité", ne propose pas une fonction hors sujet comme "Protéger des chocs").
 - Conseiller : Proposer 2 à 3 fonctions pertinentes manquantes dans "conseils" (hors recyclage/fin de vie/critères économiques).
 - Champ "error_type" : Si une fonction est CORRECTE malgré de légères fautes d'orthographe ou d'article, mets "none".
 
@@ -1886,8 +1931,10 @@ Pour chaque fonction, attribue obligatoirement l'une des valeurs suivantes pour 
 
 CONSIGNE DE CONCISION STRICTE : Fais des commentaires d'évaluation très courts, d'au maximum 1 à 2 phrases par fonction. Va droit au but.`;
 
+    var productIdx = (sessionIndex !== undefined) ? parseInt(sessionIndex, 10) : 0;
     var prompt = `Sujet : ${packaging}
 Niveau de l'exercice : ${AppState.level === 'debutant' ? 'Débutant' : 'Avancé'}
+Numéro du produit analysé dans la session de l'étudiant : ${productIdx + 1} (sur 10)
 ${levelRules}
 
 Fonctions formulées par l'étudiant :
@@ -2206,6 +2253,16 @@ function renderFeedback(studentAnswers, evaluationData) {
     if (AppState.sessionIndex >= MAX_SESSION_PACKS - 1) {
         nextBtn.classList.add("hidden");
         finishBtn.style.gridColumn = "span 2";
+        
+        // Notification de bonus de fin de session débloqué
+        var bonusContainer = document.getElementById("bonus-container");
+        if (bonusContainer) {
+            bonusContainer.innerHTML += `
+                <div class="bonus-alert" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(14, 165, 233, 0.2)); border: 1px solid var(--primary); margin-top: 0.75rem; padding: 1rem; border-radius: 12px; font-weight: 600;">
+                    🏆 <strong>Super Bonus Débloqué !</strong> Tu es allé(e) au bout de tes 5 analyses. Un bonus exceptionnel de <strong>+150 points</strong> va être crédité sur ton score final !
+                </div>
+            `;
+        }
     } else {
         nextBtn.classList.remove("hidden");
         finishBtn.style.gridColumn = "auto";
@@ -2225,6 +2282,13 @@ document.getElementById("btn-finish-session").addEventListener("click", async fu
     document.getElementById("screen-exercise").classList.add("hidden");
     document.getElementById("screen-loader").style.display = "flex";
     document.getElementById("loader-text").innerText = "Enregistrement de la session…";
+
+    // Application du super bonus si le joueur a complété la session entière (5 emballages)
+    var sessionBonus = 0;
+    if (AppState.sessionHistory.length >= MAX_SESSION_PACKS) {
+        sessionBonus = 150;
+        AppState.sessionScore += sessionBonus;
+    }
 
     var finalScore = AppState.sessionScore;
     
@@ -2281,6 +2345,16 @@ function renderBilanScreen(finalScore) {
     switchBilanTab('session');
 
     document.getElementById("bilan-score-value").textContent = finalScore;
+    
+    // Affichage ou masquage du badge de super bonus
+    var bonusBadge = document.getElementById("bilan-bonus-badge");
+    if (bonusBadge) {
+        if (AppState.sessionHistory.length >= MAX_SESSION_PACKS) {
+            bonusBadge.style.display = "inline-block";
+        } else {
+            bonusBadge.style.display = "none";
+        }
+    }
     
     // Phrase d'encouragement dynamique basée sur le score
     var summaryTextEl = document.getElementById("bilan-summary-text");
@@ -2357,20 +2431,23 @@ function renderBilanScreen(finalScore) {
     // Extraction des forces pédagogiques
     var strengths = [];
     
-    if (!hasVerbState) {
-        strengths.push("Bonne maîtrise des verbes d'action (pas de verbes d'état comme être/avoir).");
-    }
-    if (!hasRigueurFormulation) {
-        strengths.push("Respect de la rigueur syntaxique (infinitif d'action, sans adverbes ni négations).");
-    }
-    if (!hasEme) {
-        strengths.push("Bonne caractérisation des interactions avec les milieux extérieurs.");
-    }
-    if (!hasPhysical) {
-        strengths.push("Excellente distinction entre fonction et solution (pas d'éléments physiques cités).");
-    }
-    if (!hasHorsCadreUsage) {
-        strengths.push("Bon ciblage sur les fonctions d'usage de l'emballage (sans critères de coût ou environnement).");
+    // On ne valide les forces méthodologiques et syntaxiques que si l'élève a produit au moins 5 fonctions correctes dans sa session
+    if (correctFuncs.length >= 5) {
+        if (!hasVerbState) {
+            strengths.push("Bonne maîtrise des verbes d'action (pas de verbes d'état comme être/avoir).");
+        }
+        if (!hasRigueurFormulation) {
+            strengths.push("Respect de la rigueur syntaxique (infinitif d'action, sans adverbes ni négations).");
+        }
+        if (!hasEme) {
+            strengths.push("Bonne caractérisation des interactions avec les milieux extérieurs.");
+        }
+        if (!hasPhysical) {
+            strengths.push("Excellente distinction entre fonction et solution (pas d'éléments physiques cités).");
+        }
+        if (!hasHorsCadreUsage) {
+            strengths.push("Bon ciblage sur les fonctions d'usage de l'emballage (sans critères de coût ou environnement).");
+        }
     }
     
     // Taux de réussite global
@@ -2391,6 +2468,9 @@ function renderBilanScreen(finalScore) {
     }
     
     // Sécurité/Fallbacks si moins de 2 forces identifiées
+    if (correctFuncs.length < 5) {
+        strengths.push("Nombre de fonctions validées encore trop juste pour cibler des points forts précis, mais ta démarche progresse. Reste motivé(e), l'analyse fonctionnelle s'acquiert par la pratique !");
+    }
     if (strengths.length < 2) {
         strengths.push("Bonne persévérance pour mener à bien l'ensemble de la session d'analyse.");
     }
