@@ -64,8 +64,8 @@ module.exports = async function handler(req, res) {
               student_answer: ev.func || ev.fonction || "",
               evaluation_status: statusVal,
               error_type: errorType,
-              ai_comment: ev.comm || ev.commentaire || null,
-              ai_suggestion: ev.sugg || ev.suggestion || null
+              aicomment: ev.comm || ev.commentaire || null,
+              aisuggestion: ev.sugg || ev.suggestion || null
             });
           });
         }

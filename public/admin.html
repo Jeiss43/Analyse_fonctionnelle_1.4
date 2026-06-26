@@ -1055,8 +1055,8 @@
                                     </div>
                                 </div>
                                 <div id="${detailId}" class="hidden" style="background:rgba(15,23,42,0.4); border-left:3px solid var(--primary); padding:0.6rem 0.8rem; margin-top:0.25rem; border-radius:4px; font-size:0.8rem; line-height:1.4;">
-                                    <div><strong>Commentaire IA :</strong> ${escapeHtml(log.ai_comment || "Aucun commentaire")}</div>
-                                    ${log.ai_suggestion ? `<div style="margin-top:0.3rem;"><strong>Suggestion :</strong> <span style="color:var(--primary); font-weight:600;">"${escapeHtml(log.ai_suggestion)}"</span></div>` : ""}
+                                    <div><strong>Commentaire IA :</strong> ${escapeHtml(log.aicomment || "Aucun commentaire")}</div>
+                                    ${log.aisuggestion ? `<div style="margin-top:0.3rem;"><strong>Suggestion :</strong> <span style="color:var(--primary); font-weight:600;">"${escapeHtml(log.aisuggestion)}"</span></div>` : ""}
                                 </div>
                             </div>
                         `;

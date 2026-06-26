@@ -2327,6 +2327,33 @@ function renderBilanScreen(finalScore) {
     listStrengths.innerHTML = "";
     listVigilance.innerHTML = "";
     
+    // Détection des types d'erreurs commises dans la session
+    var hasPhysical = false;
+    var hasRigueurFormulation = false;
+    var hasEme = false;
+    var hasHorsCadreUsage = false;
+    var hasVerbState = false;
+    var hasHorsSujet = false;
+    
+    incorrectFuncs.forEach(function(f) {
+        var errType = f.error_type || f.errorType || "";
+        if (errType === "solution_physique") hasPhysical = true;
+        else if (errType === "rigueur_formulation" || errType === "verbe_action") hasRigueurFormulation = true;
+        else if (errType === "manque_eme") hasEme = true;
+        else if (errType === "hors_cadre_usage" || errType === "fin_de_vie") hasHorsCadreUsage = true;
+        else if (errType === "verbe_etat") hasVerbState = true;
+        else if (errType === "hors_sujet") hasHorsSujet = true;
+        else {
+            var commVal = (f.comm || f.commentaire || "").toLowerCase();
+            if (commVal.indexOf("physique") !== -1 || commVal.indexOf("solution") !== -1) hasPhysical = true;
+            if (commVal.indexOf("infinitif") !== -1 || commVal.indexOf("verbe d'action") !== -1 || commVal.indexOf("negation") !== -1 || commVal.indexOf("adverbe") !== -1) hasRigueurFormulation = true;
+            if (commVal.indexOf("complement") !== -1 || commVal.indexOf("eme") !== -1) hasEme = true;
+            if (commVal.indexOf("fin de vie") !== -1 || commVal.indexOf("recyclage") !== -1 || commVal.indexOf("economi") !== -1 || commVal.indexOf("poids") !== -1) hasHorsCadreUsage = true;
+            if (commVal.indexOf("etat") !== -1 || commVal.indexOf("être") !== -1 || commVal.indexOf("avoir") !== -1) hasVerbState = true;
+            if (commVal.indexOf("hors sujet") !== -1 || commVal.indexOf("impossible") !== -1) hasHorsSujet = true;
+        }
+    });
+    
     // Extraction des forces pédagogiques
     var strengths = [];
     
@@ -2377,34 +2404,8 @@ function renderBilanScreen(finalScore) {
         listStrengths.appendChild(li);
     });
     
-    // Points de vigilance basés sur les types d'erreurs
+    // Points de vigilance basés sur les types d'erreurs détectées
     var vigilances = [];
-    var hasPhysical = false;
-    var hasRigueurFormulation = false;
-    var hasEme = false;
-    var hasHorsCadreUsage = false;
-    var hasVerbState = false;
-    var hasHorsSujet = false;
-    
-    incorrectFuncs.forEach(function(f) {
-        var errType = f.error_type || f.errorType || "";
-        if (errType === "solution_physique") hasPhysical = true;
-        else if (errType === "rigueur_formulation" || errType === "verbe_action") hasRigueurFormulation = true;
-        else if (errType === "manque_eme") hasEme = true;
-        else if (errType === "hors_cadre_usage" || errType === "fin_de_vie") hasHorsCadreUsage = true;
-        else if (errType === "verbe_etat") hasVerbState = true;
-        else if (errType === "hors_sujet") hasHorsSujet = true;
-        else {
-            var commVal = (f.comm || f.commentaire || "").toLowerCase();
-            if (commVal.indexOf("physique") !== -1 || commVal.indexOf("solution") !== -1) hasPhysical = true;
-            if (commVal.indexOf("infinitif") !== -1 || commVal.indexOf("verbe d'action") !== -1 || commVal.indexOf("negation") !== -1 || commVal.indexOf("adverbe") !== -1) hasRigueurFormulation = true;
-            if (commVal.indexOf("complement") !== -1 || commVal.indexOf("eme") !== -1) hasEme = true;
-            if (commVal.indexOf("fin de vie") !== -1 || commVal.indexOf("recyclage") !== -1 || commVal.indexOf("economi") !== -1 || commVal.indexOf("poids") !== -1) hasHorsCadreUsage = true;
-            if (commVal.indexOf("etat") !== -1 || commVal.indexOf("être") !== -1 || commVal.indexOf("avoir") !== -1) hasVerbState = true;
-            if (commVal.indexOf("hors sujet") !== -1 || commVal.indexOf("impossible") !== -1) hasHorsSujet = true;
-        }
-    });
-    
     if (hasPhysical) vigilances.push("Attention à ne pas citer d'éléments physiques (bouchon, carton...) dans tes rédactions.");
     if (hasRigueurFormulation) vigilances.push("Rappel : respecte la rigueur de formulation (débuter par un verbe d'action à l'infinitif, sans tournure négative ni adverbe subjectif).");
     if (hasEme) vigilances.push("Veille à toujours compléter le verbe par un complément de milieu extérieur (ex: 'contre...').");

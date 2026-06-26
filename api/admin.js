@@ -166,7 +166,7 @@ module.exports = async function handler(req, res) {
           const sessionIds = sessions.map(s => s.id);
           const { data: logsData, error: logsErr } = await supabase
             .from('activity_logs')
-            .select('session_id, packaging_name, student_answer, evaluation_status, error_type, ai_comment, ai_suggestion')
+            .select('session_id, packaging_name, student_answer, evaluation_status, error_type, aicomment, aisuggestion')
             .in('session_id', sessionIds);
 
           if (logsErr) throw logsErr;
