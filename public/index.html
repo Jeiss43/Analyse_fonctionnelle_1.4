@@ -685,7 +685,7 @@
             <div class="welcome-card">
                 <h3>Bienvenue dans ton module d'entraînement !</h3>
                 <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
-                    Ce simulateur interactif te permet d'analyser des emballages variés issus de la vie réelle. Tu rédigeras le cahier des charges fonctionnel de chaque produit, et notre <strong>Expert IA</strong> évaluera la pertinence de tes propositions en temps réel. Une session d'entraînement comporte <strong>5 emballages</strong>. Terminer la session complète te rapporte un <strong>Super Bonus exceptionnel de +150 points</strong> !
+                    Ce simulateur interactif te permet d'analyser des emballages variés issus de la vie réelle. Tu rédigeras le cahier des charges fonctionnel de chaque produit, et notre <strong>Expert IA</strong> évaluera la pertinence de tes propositions en temps réel. Une session d'entraînement comporte <strong>5 emballages</strong>. Terminer la session complète te garantit un <strong>Bonus d'Effort de +75 points</strong>, doublé à <strong>+150 points (Super Bonus)</strong> si tu obtiens au moins <strong>50% de réussite globale</strong> !
                 </p>
                 <p style="font-size:0.9rem;color:var(--primary);font-weight:700;">
                     Objectif : S'abstraire de la solution physique pour exprimer le besoin fondamental.
@@ -750,7 +750,7 @@
                 <div style="font-size:0.9rem;font-weight:700;color:var(--primary);"><span id="sess-score">0</span> PTS</div>
             </div>
             <div id="session-bonus-reminder" style="text-align: center; font-size: 0.85rem; color: #a5b4fc; margin-bottom: 1.5rem; font-weight: 600; background: rgba(79, 70, 229, 0.1); border: 1px dashed rgba(79, 70, 229, 0.3); padding: 0.4rem; border-radius: 8px;">
-                🎁 Complète encore <span id="sess-rem-count">5</span> analyses pour débloquer le Super Bonus (+150 pts) !
+                🎁 Bonus d'Effort de +75 pts garanti en fin de session, et +150 pts si tu atteins 50% de réussite globale !
             </div>
         </header>
         <div class="content">
@@ -1642,11 +1642,11 @@ function loadPackExercise() {
     var reminderEl = document.getElementById("session-bonus-reminder");
     if (reminderEl) {
         if (remCount > 1) {
-            reminderEl.innerHTML = `🎁 Complète encore <strong>${remCount}</strong> analyses d'emballages pour obtenir le Super Bonus de session (+150 pts) !`;
+            reminderEl.innerHTML = `🎁 <strong>Bonus de Session :</strong> +75 pts assurés au bout des 5 emballages. Vise au moins 50% de réussite globale pour doubler à +150 pts (encore <strong>${remCount}</strong> à analyser) !`;
         } else if (remCount === 1) {
-            reminderEl.innerHTML = `🔥 <strong>Dernier produit !</strong> Plus qu'une analyse avant de décrocher ton Super Bonus (+150 pts) !`;
+            reminderEl.innerHTML = `🔥 <strong>Dernier produit !</strong> Fais de ton mieux pour atteindre 50% de réussite globale et obtenir le Super Bonus de +150 pts !`;
         } else {
-            reminderEl.innerHTML = `🎉 <strong>Félicitations !</strong> Tu as complété toutes les analyses. Super Bonus de +150 pts validé !`;
+            reminderEl.innerHTML = `🎉 Analyses terminées ! Regarde ci-dessous ton bonus débloqué.`;
         }
     }
 
@@ -2254,14 +2254,38 @@ function renderFeedback(studentAnswers, evaluationData) {
         nextBtn.classList.add("hidden");
         finishBtn.style.gridColumn = "span 2";
         
-        // Notification de bonus de fin de session débloqué
+        // Calcul du taux de réussite global de la session
+        var totalSessionFuncs = 0;
+        var correctSessionFuncs = 0;
+        AppState.sessionHistory.forEach(function(caseItem) {
+            if (caseItem.evaluations && Array.isArray(caseItem.evaluations)) {
+                caseItem.evaluations.forEach(function(ev) {
+                    if (!ev) return;
+                    totalSessionFuncs++;
+                    var statusVal = ev.status || ev.statut || "INCORRECTE";
+                    if (statusVal === "CORRECTE") {
+                        correctSessionFuncs++;
+                    }
+                });
+            }
+        });
+        
+        var globalSuccessPct = totalSessionFuncs > 0 ? Math.round((correctSessionFuncs / totalSessionFuncs) * 100) : 0;
         var bonusContainer = document.getElementById("bonus-container");
         if (bonusContainer) {
-            bonusContainer.innerHTML += `
-                <div class="bonus-alert" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(14, 165, 233, 0.2)); border: 1px solid var(--primary); margin-top: 0.75rem; padding: 1rem; border-radius: 12px; font-weight: 600;">
-                    🏆 <strong>Super Bonus Débloqué !</strong> Tu es allé(e) au bout de tes 5 analyses. Un bonus exceptionnel de <strong>+150 points</strong> va être crédité sur ton score final !
-                </div>
-            `;
+            if (globalSuccessPct >= 50) {
+                bonusContainer.innerHTML += `
+                    <div class="bonus-alert" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(14, 165, 233, 0.2)); border: 1px solid var(--success); margin-top: 0.75rem; padding: 1rem; border-radius: 12px; font-weight: 600;">
+                        🏆 <strong>Super Bonus Validé (+150 pts) !</strong> Tu as complété la session avec ${globalSuccessPct}% de réussite globale (seuil requis: 50%). Félicitations !
+                    </div>
+                `;
+            } else {
+                bonusContainer.innerHTML += `
+                    <div class="bonus-alert" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.15)); border: 1px solid var(--secondary); margin-top: 0.75rem; padding: 1rem; border-radius: 12px; font-weight: 600;">
+                        🎁 <strong>Bonus d'Effort Validé (+75 pts) !</strong> Session complétée. Ton taux de réussite globale est de ${globalSuccessPct}%. Vise 50% lors de ta prochaine session pour doubler ton bonus et obtenir le Super Bonus de +150 pts !
+                    </div>
+                `;
+            }
         }
     } else {
         nextBtn.classList.remove("hidden");
@@ -2283,11 +2307,36 @@ document.getElementById("btn-finish-session").addEventListener("click", async fu
     document.getElementById("screen-loader").style.display = "flex";
     document.getElementById("loader-text").innerText = "Enregistrement de la session…";
 
-    // Application du super bonus si le joueur a complété la session entière (5 emballages)
+    // Calcul du taux de réussite global final
+    var totalSessionFuncs = 0;
+    var correctSessionFuncs = 0;
+    AppState.sessionHistory.forEach(function(caseItem) {
+        if (caseItem.evaluations && Array.isArray(caseItem.evaluations)) {
+            caseItem.evaluations.forEach(function(ev) {
+                if (!ev) return;
+                totalSessionFuncs++;
+                var statusVal = ev.status || ev.statut || "INCORRECTE";
+                if (statusVal === "CORRECTE") {
+                    correctSessionFuncs++;
+                }
+            });
+        }
+    });
+    var globalSuccessPct = totalSessionFuncs > 0 ? (correctSessionFuncs / totalSessionFuncs) * 100 : 0;
+
+    // Application du bonus de complétion
     var sessionBonus = 0;
     if (AppState.sessionHistory.length >= MAX_SESSION_PACKS) {
-        sessionBonus = 150;
+        if (globalSuccessPct >= 50) {
+            sessionBonus = 150;
+            AppState.hasReceivedBonus = "super";
+        } else {
+            sessionBonus = 75;
+            AppState.hasReceivedBonus = "effort";
+        }
         AppState.sessionScore += sessionBonus;
+    } else {
+        AppState.hasReceivedBonus = false;
     }
 
     var finalScore = AppState.sessionScore;
@@ -2349,8 +2398,14 @@ function renderBilanScreen(finalScore) {
     // Affichage ou masquage du badge de super bonus
     var bonusBadge = document.getElementById("bilan-bonus-badge");
     if (bonusBadge) {
-        if (AppState.sessionHistory.length >= MAX_SESSION_PACKS) {
+        if (AppState.hasReceivedBonus === "super") {
             bonusBadge.style.display = "inline-block";
+            bonusBadge.innerHTML = "🏆 Super Bonus inclus (+150 pts) !";
+            bonusBadge.style.background = "linear-gradient(90deg, #10b981, #0ea5e9)";
+        } else if (AppState.hasReceivedBonus === "effort") {
+            bonusBadge.style.display = "inline-block";
+            bonusBadge.innerHTML = "🎁 Bonus d'Effort inclus (+75 pts) !";
+            bonusBadge.style.background = "linear-gradient(90deg, #4f46e5, #0ea5e9)";
         } else {
             bonusBadge.style.display = "none";
         }
